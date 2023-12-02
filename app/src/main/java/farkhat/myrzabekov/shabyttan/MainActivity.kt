@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 //                (binding.textView.text.toString() +"\n"+ artwork?.descriptionRu) ?: "Artwork not found"
 //        }
 
-//        createArtworks()
+        createArtworks()
 
         setupNavigation()
         handleDeepLink(intent)
