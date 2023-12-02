@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="#2C2C2C"
+    app:cardCornerRadius="15dp"
+    tools:context=".presentation.ui.fragments.SettingsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="69dp"
+            android:layout_marginHorizontal="28dp"
+            android:layout_marginVertical="8dp">
+
+            <ImageView
+                android:id="@+id/usernameImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_username"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/usernameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:fontFamily="@font/roboto"
+                android:textColor="@color/settings_info"
+                app:layout_constraintBottom_toTopOf="@id/usernameLabelTextView"
+                app:layout_constraintStart_toEndOf="@+id/usernameImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="farkhat.myrzabekov" />
+
+            <TextView
+                android:id="@+id/usernameLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="@string/username"
+                android:textColor="@color/settings_label"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/usernameTextView"
+                app:layout_constraintTop_toBottomOf="@id/usernameTextView" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="0dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/line" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="69dp"
+            android:layout_marginHorizontal="28dp"
+            android:layout_marginVertical="8dp">
+
+            <ImageView
+                android:id="@+id/emailImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_email"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/emailTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:fontFamily="@font/roboto"
+                android:textColor="@color/settings_info"
+                app:layout_constraintBottom_toTopOf="@id/emailLabelTextView"
+                app:layout_constraintStart_toEndOf="@+id/emailImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="menfara@gmail.com" />
+
+            <TextView
+                android:id="@+id/emailLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="@string/email"
+                android:textColor="@color/settings_label"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/emailTextView"
+                app:layout_constraintTop_toBottomOf="@id/emailTextView" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="0dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/line" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="69dp"
+            android:layout_marginHorizontal="28dp"
+            android:layout_marginVertical="8dp">
+
+            <ImageView
+                android:id="@+id/languageImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_lang"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/languageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:fontFamily="@font/roboto"
+                android:textColor="@color/settings_info"
+                app:layout_constraintBottom_toTopOf="@id/languageLabelTextView"
+                app:layout_constraintStart_toEndOf="@+id/languageImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="English" />
+
+            <TextView
+                android:id="@+id/languageLabelTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="@string/language"
+                android:textColor="@color/settings_label"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/languageTextView"
+                app:layout_constraintTop_toBottomOf="@id/languageTextView" />
+
+            <ImageView
+                android:id="@+id/languageSelector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:src="@drawable/triangle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>
