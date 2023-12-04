@@ -24,4 +24,8 @@
     <string name="language">Язык приложения</string>
     <string name="english">Английский</string>
     <string name="russian">Русский</string>
+    <string name="no_favorites_yet">Список избранных пуст!</string>
+    <string name="no_favorites_info">Нажмите кнопку \"Мне нравится\" на странице произведения, чтобы добавить ее в избранное.</string>
+    <string name="no_result_info">Извините, мы не смогли найти никаких результатов\nпо вашему запросу.</string>
+    <string name="no_result">Результатов не найдено!</string>
 </resources>

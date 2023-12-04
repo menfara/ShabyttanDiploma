@@ -45,6 +45,7 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupArtistRecyclerViewUI()
         setupRecommendationRecyclerViewUI()
         setupHistoryRecyclerViewUI()
 
@@ -63,7 +64,7 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
             }
         }
 
-        viewModel.getArtworksByCreator("Benjamin West")
+        viewModel.getArtworksByCreator("Claude Monet")
         viewModel.artworksByCreatorData.observe(viewLifecycleOwner) { artworks ->
             binding.horizontalRecyclerView.adapter = ArtistRecyclerViewAdapter(artworks, this)
         }
@@ -91,6 +92,12 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
             false
         }
 
+    }
+
+    private fun setupArtistRecyclerViewUI() {
+        binding.horizontalRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.horizontalRecyclerView.addItemDecoration(HorizontalSpaceItemDecoration(15.dp))
     }
 
     private fun setupRecommendationRecyclerViewUI() {

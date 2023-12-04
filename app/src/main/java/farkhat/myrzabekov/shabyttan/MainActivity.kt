@@ -3,14 +3,21 @@ package farkhat.myrzabekov.shabyttan
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.LocaleList
+import android.preference.PreferenceManager
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -42,11 +49,16 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 //                (binding.textView.text.toString() +"\n"+ artwork?.descriptionRu) ?: "Artwork not found"
 //        }
 
+
+
         createArtworks()
+
+
 
         setupNavigation()
         handleDeepLink(intent)
     }
+
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -76,6 +88,11 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 
 
     private fun createArtworks() {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val userId = sharedPreferences.getLong("userId", -1L)
+        Log.d(">>> userId", userId.toString())
+        if (userId != -1L) return
+
         viewModel.createUser(
             UserEntity(
                 username = "Farkhat",
@@ -83,9 +100,85 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
                 password = "pass"
             )
         )
+
         viewModel.setUserId(1)
         viewModel.setUserLanguage()
         val artworksList = listOf(
+            ArtworkEntity(
+                title = "Hunting trophy",
+                titleRu = "Охотничий трофей",
+
+                creator = "Claude Monet",
+                creatorRu = "Клод Моне",
+
+                creationDate = "c. 1862",
+                creationDateRu = "около 1862",
+
+                technique = "Oil painting",
+                techniqueRu = "Масляная живопись",
+
+                type = "Landscape",
+                typeRu = "Пейзаж",
+
+                description = "At the very beginning of his career, Monet most often turned to the depiction of inanimate objects. Although he later continued to be interested in this genre, still life never became one of the main themes of his painting. This was explained by the fact that, unlike portrait subjects, still life was a less expensive field of study for young artists of the XIX century and did not require payment for the work of models. In any case, Monet firmly considered still lifes to be his best achievement, offering one of them in 1859 to the Municipal Council of Le Havre with a scholarship application. In the same year, he presented two still lifes to the painter Constant Troyon to demonstrate his painting skills. This work shows amazing skill, not expected from a young artist. Of course, the composition and the selected models trace the legacy of Chardin and the splendor of Troyon's canvases. In the Salon of 1859, Monet admired Troyon's painting depicting a dog with a partridge in its teeth: \"it's wonderful that you can smell its fur,\" he wrote to his mentor Boudin. But the confidence in the composition and the boldness in the interaction of textures show that Monet could already demonstrate his independence from the influence of recognized masters of this genre.",
+                descriptionRu = "В самом начале своей карьеры Моне наиболее часто обращается к изображению неодушевленных предметов. Хотя впоследствии он продолжает интересоваться этим жанром, натюрморт так и не стал одной из главных тем его живописи. Это объяснялось тем, что натюрморт в отличие от портретной тематики был менее дорогостоящей областью исследования для молодых художников XIX века и не требовал платы за труд натурщиц. В любом случае, Моне твердо считал натюрморты своим лучшим достижением, предложив один из них в 1859 году в муниципальный совет Гавра с ходатайством о стипендии. В том же году он представил два натюрморта живописцу Констану Тройону для демонстрации своих навыков живописи. Данная работа показывает удивительное мастерство, не ожидаемое от юного художника. Конечно, в композиции и выбранных моделях прослеживается наследие Шардена и пышность полотен Тройона. В Салоне 1859 года Моне восхитила картина Тройона, изображающая собаку с куропаткой в зубах: \"это замечательно, что вы можете чувствовать запах ее шерсти\", писал он своему наставнику Будену. Но уверенность в композиции и смелость во взаимодействии текстур показывают, что Моне уже мог демонстрировать свою независимость от влияния признанных мастеров этого жанра.",
+
+                didYouKnow = "Claude Monet's \"Hunting Trophy\" is a rare example of his early still lifes and demonstrates the artist's departure from traditional academicism to impressionism.",
+                didYouKnowRu = "\"Охотничий трофей\" Клода Моне, является редким примером его ранних натюрмортов и демонстрирует отход художника от традиционного академизма к импрессионизму.",
+
+                imageUrl = "https://impressionism.su/monet/picture/Hunting%20Trophy.jpg",
+                viewDate = "2023/12/02"
+            ),
+            ArtworkEntity(
+                title = "Terrace at Sainte-Adresse",
+                titleRu = "Терраса в Сент-Адресс",
+
+                creator = "Claude Monet",
+                creatorRu = "Клод Моне",
+
+                creationDate = "1867",
+                creationDateRu = "1867",
+
+                technique = "Oil painting",
+                techniqueRu = "Масляная живопись",
+
+                type = "Urban landscape",
+                typeRu = "Пейзаж",
+
+                description = "Two years before painting \"The Terrace at Saint-Adresse\" Monet wrote: \"I come up with amazing things when I go to Saint-Adresse.\" Indeed, the real work is an \"amazing thing\" and the first of Monet's paintings, which clearly implements many of the ideas of Impressionism. Painted in the seaside resort of Saint-Adresse, surrounded by members of the Monet family, it in no way demonstrates the internal contradictions in the artist's life. That summer, Camille Doncier, Claude's fiancee, was pregnant, and the artist's family strongly disapproved of the situation. His father issued an ultimatum regarding the financing of Monet's existence as an artist, saying that he should forget Camille and the child. In the summer, the younger Monet dutifully came to Saint-Adresse to calm his family, but did not know how to reconcile the desire of his relatives and his own decision to stay with Camille and his future child. In fact, this painting is an ode to sunny days on the Normandy coast, with an abundance of sailboats, umbrellas and flags, which testifies to the strictly ordered rest of the French bourgeoisie of that time. A gray-bearded gentleman in a panama hat in the foreground, modeled after Monet's father, Adolphe, sits with his back to the viewer, accompanied by a fashionably dressed woman in a white dress with an umbrella, also sitting on one of the bent reed chairs. It is generally believed that she represents Sophie Lecadre, the wife of Adolphe-Aime Lecadre. Those sitting watch the couple at the water's edge; she is wearing a fashionable white dress with red trim and an umbrella, and he is dressed more formally than Monet's father, in a top hat and a black jacket. The girl has been identified as Sophie's daughter, Jeanne-Marguerite, and the man, as usual, is believed to be her father and Sophie's husband, Dr. Adolphe-Aime Lecadre or another male relative. The four are surrounded by greenery, interspersed with flowers in red, yellow and white tones, where the latter echo the white dresses of the women. Gladioli, geraniums and nasturtiums, found in nature in a variety of shades of red, are combined here in one bright red tone. The French tricolor flies high on the right, while the red and yellow flag flies on the left, representing either the colors of the local sailing club or the colors of the Spanish flag in honor of Maria Cristina de Bourbon, widow of the Spanish King Ferdinand VII, who lived nearby at that time. Two people are sitting in a three-sail boat near a standing couple, other sailboats are moored on the left. Far out at sea, large ships can be seen, including steamships, which color the sky with gray smoke. Even in this relatively early work, the artist naturalistically depicted chimneys, just as he would later show factory chimneys behind the scenes of a bourgeois vacation in Argenteuil in the 1870s. The clear sky becomes more cloudy when it reaches the horizon line and the smoke from the ships. The long shadows cast by the figures in the foreground of the stage indicate that it is late afternoon.",
+                descriptionRu = "За два года до написания картины \"Терраса в Сент-Адресс\" Моне писал: \"Я придумываю потрясающие вещи, когда еду в Сент-Адресс\". Действительно, настоящая работа - \"потрясающая вещь\" и первая из картин Моне, которая наглядно реализует многие идеи импрессионизма. Написанная в приморском курорте Сент-Адресс в окружении членов семьи Моне, она ни коим образом не демонстрирует внутренних противоречий в жизни художника. В то лето Камилла Донсье, невеста Клода, была беременна, и семья художника решительно не одобряла сложившуюся ситуацию. Его отец выдвинул ультиматум относительно финансирования существования Моне как художника, заявив, что тот должен забыть Камиллу и ребенка. Летом младший Моне покорно приехал в Сент-Адресс, чтобы успокоить свою семью, но не знал, как примирить желание родных, и собственное решение остаться с Камиллой и своим будущим ребенком. На самом деле, это полотно - ода солнечным дням на побережье Нормандии, с изобилием парусников, зонтиков и флагов, которая свидетельствует о строго упорядоченном отдыхе французской буржуазии того времени. Седобородый джентльмен в панаме на переднем плане, смоделированный с отца Моне, Адольфа, сидит спиной к зрителю в сопровождении модно одетой женщины в белом платье с зонтиком, также сидящей на одном из стульев из гнутого тростника. Принято считать, что она представляет Софи Лекадр, супругу Адольфа-Эме Лекадра. Сидящие наблюдают за парой у кромки воды; она в модном белом платье с красной отделкой и зонтиком, а он одет более официально, чем отец Моне, в цилиндре и черном пиджаке. Девушка была идентифицирована как дочь Софи, Жанна-Маргарита, а мужчина, как обычно, полагают, является ее отцом и мужем Софи, доктором Адольфом-Эме Лекадром или другим родственником мужского пола. Четверка окружена зеленью, перемежающейся цветами в красных, желтых и белых тонах, где последние вторят белым платьям женщин. Гладиолусы, герани и настурции, встречающиеся в природе в самых разных оттенках красного, объединены здесь в один ярко-красный тон. Французский триколор развевается высоко справа, в то время как слева реет красно-желтый флаг, представляющий либо цвета местного парусного клуба, либо цвета испанского флага в честь Марии Кристины де Бурбон, вдовы испанского короля Фердинанда VII, жившей тогда неподалеку. Два человека сидят в трехпарусной лодке возле стоящей пары, другие парусники пришвартованы слева. Далеко в море видны большие корабли, в том числе пароходы, которые окрашивают небо серым дымом. Даже в этой относительно ранней работе художник натуралистично изобразил дымовые трубы, так же как он позже покажет заводские трубы за кулисами буржуазного отдыха в Аржантей в 1870-х годах. Ясное небо становится более облачным, когда оно достигает линии горизонта и дыма от кораблей. Длинные тени, отбрасываемые фигурами на переднем плане сцены, выдают, что наступил поздний полдень.",
+
+                didYouKnow = "In 1879, Monet exhibited a real painting at the fourth Impressionist exhibition called The Garden at Saint-Adresse. By 1915, she exhibited in San Francisco under the title \"Le Havre, terrace by the sea\" and at the New York World's Fair in 1940 as \"Harbor near Le Havre\". Both \"terrace\" and \"Le Havre\" were fixed in the name for a long time, until in 1860 at the Museum of Modern Art in New York \"Le Havre\" was replaced by the original \"Saint Address\". The return to the \"garden\" instead of \"terrace\" occurred in 1986 after studying the original catalog of the 1879 exhibition. Interestingly, in the Russian localization, the painting still bears the name \"Terrace in St. Address\", as the closest to the content of the canvas.",
+                didYouKnowRu = "В 1879 году Моне выставил настоящую картину на четвертой выставке импрессионистов под названием \"Сад в Сент-Адресс\". К 1915 году она выставлялась в Сан-Франциско под заголовком \"Гавр, терраса у моря\" и на нью-йоркской Всемирной выставке 1940 года как \"Гавань возле Гавра\". И \"терраса\", и \"Гавр\" надолго закрепились в названии, пока в 1860 году в Музее современного искусства в Нью-Йорке \"Гавр\" не был заменен первоначальным \"Сент-Адресс\". Возвращение к \"саду\" вместо \"террасы\" произошло в 1986 году после изучения оригинального каталога выставки 1879 года. Интересно, что в русской локализации картина по прежнему носит название \"Терраса в Сент-Адресс\", как наиболее близкое к содержанию холста.",
+
+                imageUrl = "https://impressionism.su/monet/picture/Garden%20at%20Sainte-Adresse.jpg",
+                viewDate = "2023/12/01"
+            ),
+            ArtworkEntity(
+                title = "Woman With A Parasol",
+                titleRu = "Прогулка. Дама с зонтиком",
+
+                creator = "Claude Monet",
+                creatorRu = "Клод Моне",
+
+                creationDate = "1875",
+                creationDateRu = "1875",
+
+                technique = "Oil painting",
+                techniqueRu = "Масляная живопись",
+
+                type = "Portrait",
+                typeRu = "Портрет",
+
+                description = "\"A walk. The Lady with the Umbrella\" is a painting painted by Claude Monet (Oscar-Claude Monet) in 1875, in Argenteuil, where the artist lived with his wife Camille and son Jean. The master created his masterpiece in the open air, while walking around the neighborhood. A summer day appears before the viewer. The figure of a woman is depicted from a lower angle and slightly shifted to the right. The author marked the diagonal with a shadow falling to the left and down. A gust of fabric folds and the slope of the grass create an amazing feeling of air swirling around an imaginary axis. Confident strokes, pure colors with a predominance of white and blue, give the impression of weightless lightness. It seems that now the muse of the painter will raise an umbrella and fly away after the clouds. A small figure of a child, depicted from the waist up, creates an additional feeling of free space near the main character.",
+                descriptionRu = "«Прогулка. Дама с зонтиком» — картина, написанная Клодом Моне (Oscar-Claude Monet) в 1875 году, в Аржантёе, где художник проживал вместе с супругой Камиллой и сыном Жаном. Свой шедевр мастер создавал на пленэре, во время прогулки по окрестностям. Перед зрителем предстаёт летний день. Фигура женщины изображена с нижнего ракурса и чуть смещена вправо. Автор обозначил диагональ при помощи падающей влево и вниз тени. Порыв складок ткани и наклон травы создают удивительное ощущение завихрения воздуха вокруг воображаемой оси. Уверенные мазки, чистые краски с преобладанием белого и голубого, рождают впечатление невесомой лёгкости. Кажется, что сейчас муза живописца поднимет зонтик — и улетит вслед за облаками. Маленькая фигурка ребёнка, изображённая по пояс, создаёт дополнительное ощущение свободного пространства возле главной героини.",
+
+                didYouKnow = "This painting reflects the essence of the impressionist look, as if stopping the bright moment that the master so wanted to preserve.",
+                didYouKnowRu = "Картина «Прогулка. Дама с зонтиком» Клода Моне — самая известная из работ живописца. В ней отражена суть импрессионистского взгляда, словно останавливающего светлое мгновение, которое так хотел сохранить мастер.",
+
+                imageUrl = "https://veryimportantlot.com/uploads/over/files/%D0%9D%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8/2021/%D0%98%D1%8E%D0%BD%D1%8C%202021/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D1%8F%2018%20(1)%20%D0%9A%D0%BB%D0%BE%D0%B4%20%D0%9C%D0%BE%D0%BD%D0%B5.%20%D0%9A%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D0%B0%20%C2%AB%D0%9F%D1%80%D0%BE%D0%B3%D1%83%D0%BB%D0%BA%D0%B0.%20%D0%94%D0%B0%D0%BC%D0%B0%20%D1%81%20%D0%B7%D0%BE%D0%BD%D1%82%D0%B8%D0%BA%D0%BE%D0%BC%C2%BB%2C%201875.jpg",
+                viewDate = "2023/11/30"
+            ),
             ArtworkEntity(
                 title = "Grapevine",
                 titleRu = "Виноградная лоза",
@@ -110,7 +203,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 
 
                 imageUrl = "https://openaccess-cdn.clevelandart.org/2015.510/2015.510_web.jpg",
-                viewDate = "29/11/2023"
+                viewDate = "2023/11/29"
             ),
 
             ArtworkEntity(
@@ -136,7 +229,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
                 didYouKnowRu = "Джордж Беллоуз вырос в Колумбусе, штат Огайо, и учился в Университете штата Огайо, где играл в бейсбол и баскетбол.",
 
                 imageUrl = "https://openaccess-cdn.clevelandart.org/1922.1133/1922.1133_web.jpg",
-                viewDate = "28/11/2023"
+                viewDate = "2023/11/28"
             ),
 
             ArtworkEntity(
@@ -162,7 +255,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
                 didYouKnowRu = "Маленькая собака с восхищением смотрит на Милдмэя, который, по всем отчетам, был очень высокомерным человеком.",
 
                 imageUrl = "https://openaccess-cdn.clevelandart.org/1926.554/1926.554_web.jpg",
-                viewDate = "27/11/2023"
+                viewDate = "2023/11/27"
             ),
 
             ArtworkEntity(
@@ -188,7 +281,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
                 didYouKnowRu = "Родившийся в колониальной Америке, Уэст в конечном итоге стал придворным художником Георга III Англии.",
 
                 imageUrl = "https://openaccess-cdn.clevelandart.org/1927.393/1927.393_web.jpg",
-                viewDate = "26/11/2023"
+                viewDate = "2023/11/26"
             ),
 
 //            ArtworkEntity(
@@ -216,9 +309,11 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 //                imageUrl = "",
 //                viewDate = "26/11/2023"
 //            ),
-
-
         )
+
+
+
+
         for (artwork in artworksList) {
             viewModel.createArtwork(artwork)
         }

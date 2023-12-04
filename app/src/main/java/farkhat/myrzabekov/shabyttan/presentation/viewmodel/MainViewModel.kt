@@ -35,6 +35,8 @@ class MainViewModel @Inject constructor(
     private val getUserLanguageUseCase: GetUserLanguageUseCase,
     private val getRecommendedArtworksUseCase: GetRecommendedArtworksUseCase,
     private val getGetLatestArtworksUseCase: GetLatestArtworksUseCase,
+    private val getUserEmailUseCase: GetUserEmailUseCase,
+    private val getUserUsername: GetUserUsernameUseCase,
 
 
     ) : ViewModel() {
@@ -80,6 +82,12 @@ class MainViewModel @Inject constructor(
     private val _latestArtworks = MutableLiveData<List<ArtworkEntity>>()
     val latestArtworks: LiveData<List<ArtworkEntity>> get() = _latestArtworks
 
+    private val _userEmailLiveData = MutableLiveData<String>()
+    val userEmailLiveData: LiveData<String> get() = _userEmailLiveData
+
+    private val _userUsernameLiveData = MutableLiveData<String>()
+    val userUsernameLiveData: LiveData<String> get() = _userUsernameLiveData
+
 
     fun createUser(user: UserEntity) {
         viewModelScope.launch {
@@ -116,7 +124,7 @@ class MainViewModel @Inject constructor(
 
     fun getArtworkByViewDate(viewDate: String) {
         viewModelScope.launch {
-            val artwork = getArtworkByViewDateUseCase(viewDate)
+            val artwork = getArtworkByViewDateUseCase()
             _todayArtworkLiveData.postValue(artwork)
         }
     }
@@ -240,6 +248,19 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val artworks = getGetLatestArtworksUseCase.invoke()
             _latestArtworks.value = artworks
+        }
+    }
+
+    fun getUserEmail() {
+        viewModelScope.launch {
+            val email = getUserEmailUseCase.invoke()
+            _userEmailLiveData.value = email
+        }
+    }
+    fun getUserUsername() {
+        viewModelScope.launch {
+            val username = getUserUsername.invoke()
+            _userUsernameLiveData.value = username
         }
     }
 

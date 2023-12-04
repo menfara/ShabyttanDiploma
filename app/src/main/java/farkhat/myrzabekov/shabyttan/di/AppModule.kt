@@ -200,4 +200,20 @@ object AppModule {
     ): GetLatestArtworksUseCase {
         return GetLatestArtworksUseCaseImpl(artworkRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideUserEmailUseCase(
+        userRepository: UserRepository
+    ): GetUserEmailUseCase {
+        return GetUserEmailUseCaseImpl(userRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserUsernameUseCase(
+        userRepository: UserRepository
+    ): GetUserUsernameUseCase {
+        return GetUserUsernameUseCaseImpl(userRepository)
+    }
 }

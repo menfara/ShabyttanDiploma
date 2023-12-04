@@ -2,6 +2,7 @@ package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,10 +38,10 @@ class SearchResultsFragment : Fragment(), OnArtworkClickListener {
             Log.d(">>> YourFragment", "User language: $language")
             savedLanguage = language
             binding.apply {
-                val localizedString =
-                    requireContext().getStringInLocale(R.string.search_results, language)
+                textView.text = requireContext().getStringInLocale(R.string.search_results, language)
 
-                textView.text = localizedString
+                emptyTitleTextView.text = requireContext().getStringInLocale(R.string.no_result, language)
+                emptyInfoTextView.text = requireContext().getStringInLocale(R.string.no_result_info, language)
             }
         }
 
@@ -54,6 +55,24 @@ class SearchResultsFragment : Fragment(), OnArtworkClickListener {
                 recyclerView.layoutManager = layoutManager
                 recyclerView.adapter =
                     SearchResultRecyclerViewAdapter(requireContext(), artworks, savedLanguage, this)
+
+                if (artworks.isNotEmpty()) {
+                    binding.apply {
+                        emptyImageView.visibility = View.GONE
+                        emptyInfoTextView.visibility = View.GONE
+                        emptyTitleTextView.visibility = View.GONE
+                        root.gravity = Gravity.TOP
+                        binding.textView.visibility = View.VISIBLE
+                    }
+                } else {
+                    binding.apply {
+                        emptyImageView.visibility = View.VISIBLE
+                        emptyInfoTextView.visibility = View.VISIBLE
+                        emptyTitleTextView.visibility = View.VISIBLE
+                        root.gravity = Gravity.CENTER
+                        binding.textView.visibility = View.GONE
+                    }
+                }
             }
         }
 

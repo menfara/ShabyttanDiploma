@@ -1,34 +1,36 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
+import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
-import androidx.core.view.children
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
-import androidx.navigation.NavOptions
-import androidx.navigation.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentProfileBinding
-import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.HistoryRecyclerViewAdapter
-import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.OnArtworkClickListener
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.ProfilePagerAdapter
-import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.SearchResultRecyclerViewAdapter
 import farkhat.myrzabekov.shabyttan.presentation.ui.getStringInLocale
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
-import java.util.Locale
+import java.io.File
+import java.io.FileOutputStream
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -43,6 +45,13 @@ class ProfileFragment : Fragment() {
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: ProfilePagerAdapter
     private lateinit var tabLayout: TabLayout
+
+    private var isLanguageSet: Boolean = false
+    private lateinit var sharedPreferences: SharedPreferences
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedPreferences = requireActivity().getPreferences(Context.MODE_PRIVATE)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,29 +75,11 @@ class ProfileFragment : Fragment() {
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
             Log.d(">>> YourFragment", "User language: $language")
             savedLanguage = language
-            binding.apply {
-                val localizedString =
-                    requireContext().getStringInLocale(R.string.favorites, language)
-
-//                favoriteTextView.text = localizedString
-            }
         }
 
 
-
-//        binding.logoutImageView.setOnClickListener {
-//            viewModel.setUserLanguage()
-//
-//            val navOptions = NavOptions.Builder()
-//                .setPopUpTo(R.id.profileFragment, true)
-//                .build()
-//
-//            view.findNavController().navigate(R.id.profileFragment, null, navOptions)
-//        }
-
         setupObservers()
         setupRecyclerView()
-//        setLanguage(savedLanguage)
 
 
         viewPager = binding.viewPager
@@ -97,8 +88,6 @@ class ProfileFragment : Fragment() {
 
         pagerAdapter.addFragment(FavoritesFragment())
         pagerAdapter.addFragment(SettingsFragment())
-
-
 
 
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
@@ -110,35 +99,32 @@ class ProfileFragment : Fragment() {
         }
 
 
-
-
         tabLayout = binding.tabLayout
         TabLayoutMediator(tabLayout, viewPager) { _, _ -> }.attach()
 
+
+        val isLanguageSet = sharedPreferences.getBoolean("IS_LANGUAGE_SET", false)
+
         val receivedArguments = arguments
-        if (receivedArguments != null) {
+        if (receivedArguments != null && !isLanguageSet) {
             val isLanguageRefresh = receivedArguments.getBoolean("isLanguageRefresh")
-            if (isLanguageRefresh) viewPager.setCurrentItem(1, true)
-
+            if (isLanguageRefresh) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    viewPager.setCurrentItem(1, true)
+                    with(sharedPreferences.edit()) {
+                        putBoolean("IS_LANGUAGE_SET", true)
+                        apply()
+                    }
+                }, 100)
+            }
         }
 
-        viewPager.setPageTransformer { page, _ ->
-            updatePagerHeightForChild(page, viewPager)
+        displayAvatarIfExists()
+        binding.avatarImageView.setOnClickListener {
+            openImagePicker()
         }
 
 
-    }
-
-
-    private fun updatePagerHeightForChild(view: View, pager: ViewPager2) {
-        view.post {
-            val wMeasureSpec =
-                View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY)
-            val hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            view.measure(wMeasureSpec, hMeasureSpec)
-            pager.layoutParams = (pager.layoutParams).also { lp -> lp.height = view.measuredHeight }
-            pager.invalidate()
-        }
     }
 
 
@@ -160,5 +146,53 @@ class ProfileFragment : Fragment() {
         _binding = null
     }
 
+    private fun openImagePicker() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val intent = Intent(MediaStore.ACTION_PICK_IMAGES)
+            startActivityForResult(intent, IMAGE_PICK_CODE)
+        } else {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            startActivityForResult(intent, IMAGE_PICK_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IMAGE_PICK_CODE && resultCode == Activity.RESULT_OK) {
+            val imageUri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val clipData = data?.clipData
+                clipData?.getItemAt(0)?.uri
+            } else {
+                data?.data
+            }
+            imageUri?.let { uri ->
+                val inputStream = requireContext().contentResolver.openInputStream(uri)
+                val file = File(requireContext().filesDir, "avatar.jpg")
+                val outputStream = FileOutputStream(file)
+                inputStream?.copyTo(outputStream)
+
+
+                binding.avatarImageView.setImageURI(Uri.fromFile(file))
+
+            }
+
+        }
+    }
+
+    private fun displayAvatarIfExists() {
+        val file = File(requireContext().filesDir, "avatar.jpg")
+        if (file.exists()) {
+            val imageUri = Uri.fromFile(file)
+            binding.avatarImageView.setImageURI(imageUri)
+        } else {
+            binding.avatarImageView.setImageResource(R.drawable.avatar)
+        }
+    }
+
+
+    companion object {
+        private const val IMAGE_PICK_CODE = 1000
+    }
 
 }

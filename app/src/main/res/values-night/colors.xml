@@ -20,4 +20,7 @@
     <color name="ic_bg_color">#2C2C2C</color>
     <color name="settings_info">#fff</color>
     <color name="settings_label">#939393</color>
+    <color name="tab_indicator">#DBDBDB</color>
+    <color name="empty_info">#9C9C9C</color>
+
 </resources>

@@ -1,5 +1,6 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -49,8 +50,8 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
             Log.d(">>> YourFragment", "User language: $language")
             savedLanguage = language
             binding.apply {
-
-
+                emptyTitleTextView.text = requireContext().getStringInLocale(R.string.no_favorites_yet, language)
+                emptyInfoTextView.text = requireContext().getStringInLocale(R.string.no_favorites_info, language)
             }
         }
 
@@ -58,6 +59,20 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
             .observe(viewLifecycleOwner) { userFavorites ->
                 binding.historyRecyclerView.adapter =
                     HistoryRecyclerViewAdapter(userFavorites, this, savedLanguage)
+
+                if (userFavorites.isNotEmpty()) {
+                    binding.apply {
+                        emptyImageView.visibility = View.GONE
+                        emptyInfoTextView.visibility = View.GONE
+                        emptyTitleTextView.visibility = View.GONE
+                    }
+                } else {
+                    binding.apply {
+                        emptyImageView.visibility = View.VISIBLE
+                        emptyInfoTextView.visibility = View.VISIBLE
+                        emptyTitleTextView.visibility = View.VISIBLE
+                    }
+                }
             }
 
     }

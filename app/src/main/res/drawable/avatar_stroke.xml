@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/> <!-- Цвет фона -->
+            <stroke
+                android:width="2dp"
+                android:color="#FF0000"/> <!-- Цвет и ширина обводки -->
+            <corners android:radius="100dp"/> <!-- Радиус скругления углов -->
+        </shape>
+    </item>
+</layer-list>

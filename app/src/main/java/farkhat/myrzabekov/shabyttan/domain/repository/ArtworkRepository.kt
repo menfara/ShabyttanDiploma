@@ -11,7 +11,7 @@ interface ArtworkRepository {
 
     suspend fun getArtworkById(artworkId: Long): ArtworkEntity?
 
-    suspend fun getArtworkByViewDate(viewDate: String): ArtworkEntity?
+    suspend fun getArtworkByViewDate(): ArtworkEntity?
 
     suspend fun getArtworksLikedByUser(userId: Long): Flow<List<ArtworkEntity>>
 

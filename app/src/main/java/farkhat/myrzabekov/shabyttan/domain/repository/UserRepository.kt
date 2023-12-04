@@ -19,4 +19,8 @@ interface UserRepository {
 
     suspend fun getUserLanguage(): String?
 
+    suspend fun getUserEmail(): String
+    suspend fun getUserUsername(): String
+
+
 }

@@ -1,14 +1,10 @@
 package farkhat.myrzabekov.shabyttan.data.repository
 
-import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.util.Log
 import farkhat.myrzabekov.shabyttan.data.local.UserDao
 import farkhat.myrzabekov.shabyttan.data.local.entity.UserEntity
 import farkhat.myrzabekov.shabyttan.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,6 +14,9 @@ class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val sharedPreferences: SharedPreferences
 ) : UserRepository {
+
+    private val userId: Long
+        get() = sharedPreferences.getLong(KEY_USER_ID, DEFAULT_USER_ID)
 
     override suspend fun insertUser(user: UserEntity) {
         userDao.insertUser(user)
@@ -31,47 +30,39 @@ class UserRepositoryImpl @Inject constructor(
         return userDao.getUserByEmail(email)
     }
 
-    override suspend fun getUserId(): Long {
-        return withContext(Dispatchers.IO) {
-            sharedPreferences.getLong(
-                SharedPreferencesKey.USER_ID.key,
-                SharedPreferencesKey.USER_ID.defaultValue as Long
-            )
-        }
-    }
+    override suspend fun getUserId(): Long = userId
 
     override suspend fun setUserId(userId: Long) {
         withContext(Dispatchers.IO) {
-            sharedPreferences.edit().putLong(
-                SharedPreferencesKey.USER_ID.key,
-                userId
-            ).apply()
+            sharedPreferences.edit().putLong(KEY_USER_ID, userId).apply()
         }
     }
 
     override suspend fun setUserLanguage(language: String) {
         withContext(Dispatchers.IO) {
-            sharedPreferences.edit().putString(
-                SharedPreferencesKey.LANGUAGE.key,
-                language
-            ).apply()
+            sharedPreferences.edit().putString(KEY_LANGUAGE, language).apply()
         }
     }
 
     override suspend fun getUserLanguage(): String? {
         return withContext(Dispatchers.IO) {
-            sharedPreferences.getString(
-                SharedPreferencesKey.LANGUAGE.key,
-                SharedPreferencesKey.LANGUAGE.defaultValue as String
-            )
+            sharedPreferences.getString(KEY_LANGUAGE, DEFAULT_LANGUAGE)
         }
     }
 
-
-    enum class SharedPreferencesKey(val key: String, val defaultValue: Any) {
-        USER_ID("userId", -1L),
-        LANGUAGE("language", "default")
+    override suspend fun getUserEmail(): String {
+        return userDao.getUserEmail(userId)
     }
 
+    override suspend fun getUserUsername(): String {
+        return userDao.getUserUsername(userId)
+    }
+
+    companion object {
+        private const val KEY_USER_ID = "userId"
+        private const val DEFAULT_USER_ID = -1L
+        private const val KEY_LANGUAGE = "language"
+        private const val DEFAULT_LANGUAGE = "default"
+    }
 }
 

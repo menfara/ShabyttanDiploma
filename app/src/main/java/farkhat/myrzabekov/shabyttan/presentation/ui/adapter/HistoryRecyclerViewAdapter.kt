@@ -25,12 +25,15 @@ class HistoryRecyclerViewAdapter(
         @SuppressLint("SetTextI18n")
         fun bind(artwork: ArtworkEntity) {
             binding.apply {
-                val titleToShow = if (languagePreference == "ru") artwork.titleRu else artwork.title
-                title.text = titleToShow
 
-                val authorToShow =
-                    if (languagePreference == "ru") artwork.creatorRu else artwork.creator
+                val titleToShow = if (languagePreference == "ru") artwork.titleRu else artwork.title
+                val authorToShow = if (languagePreference == "ru") artwork.creatorRu else artwork.creator
+                val dateToShow = if (languagePreference == "ru") artwork.creationDateRu else artwork.creationDate
+
+                title.text = titleToShow
                 author.text = authorToShow
+                date.text = dateToShow
+
                 if (author.text.isBlank()) author.text =
                     itemView.context.getString(R.string.author_unknown)
 

@@ -24,4 +24,8 @@
     <string name="language">App language</string>
     <string name="english">English</string>
     <string name="russian">Russian</string>
+    <string name="no_favorites_yet">No Favorites Yet!</string>
+    <string name="no_favorites_info">Click the ‘Like’ button on any artwork\npage too add a favorite.</string>
+    <string name="no_result_info">Sorry, we couldn\'t find any results\nfor your query.</string>
+    <string name="no_result">No Results Found!</string>
 </resources>

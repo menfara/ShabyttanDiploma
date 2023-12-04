@@ -122,18 +122,17 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun setupPreferences() {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
+        viewModel.getUserLanguage()
+        viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
+            savedLanguage = language
+        }
 
-        savedUserId = sharedPreferences.getLong(
-            UserRepositoryImpl.SharedPreferencesKey.USER_ID.key,
-            UserRepositoryImpl.SharedPreferencesKey.USER_ID.defaultValue as Long
-        )
+        viewModel.getUserId()
+        viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
+            savedUserId = userId
+        }
 
-        savedLanguage = sharedPreferences.getString(
-            UserRepositoryImpl.SharedPreferencesKey.LANGUAGE.key,
-            UserRepositoryImpl.SharedPreferencesKey.LANGUAGE.defaultValue as String
-        ).toString()
     }
 
     override fun onDestroyView() {

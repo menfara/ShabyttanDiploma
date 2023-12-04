@@ -23,8 +23,8 @@ class ArtworkRepositoryImpl @Inject constructor(private val artworkDao: ArtworkD
         return artworkDao.getArtworkById(artworkId)
     }
 
-    override suspend fun getArtworkByViewDate(viewDate: String): ArtworkEntity? {
-        return artworkDao.getArtworkByViewDate(viewDate)
+    override suspend fun getArtworkByViewDate(): ArtworkEntity? {
+        return artworkDao.getArtworkByViewDate()
     }
 
     override suspend fun getArtworksLikedByUser(userId: Long): Flow<List<ArtworkEntity>> {

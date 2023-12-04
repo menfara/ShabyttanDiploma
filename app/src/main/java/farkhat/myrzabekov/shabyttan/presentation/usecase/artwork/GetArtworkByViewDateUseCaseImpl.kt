@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetArtworkByViewDateUseCaseImpl @Inject constructor(private val artworkRepository: ArtworkRepository) :
     GetArtworkByViewDateUseCase {
 
-    override suspend fun invoke(viewDate: String): ArtworkEntity? {
-        return artworkRepository.getArtworkByViewDate(viewDate)
+    override suspend fun invoke(): ArtworkEntity? {
+        return artworkRepository.getArtworkByViewDate()
     }
 }

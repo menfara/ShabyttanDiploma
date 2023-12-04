@@ -19,8 +19,8 @@ interface ArtworkDao {
     @Query("SELECT * FROM artworks WHERE id = :artworkId")
     suspend fun getArtworkById(artworkId: Long): ArtworkEntity?
 
-    @Query("SELECT * FROM artworks WHERE viewDate = :viewDate")
-    suspend fun getArtworkByViewDate(viewDate: String): ArtworkEntity?
+    @Query("SELECT * FROM artworks ORDER BY viewDate DESC LIMIT 1")
+    suspend fun getArtworkByViewDate(): ArtworkEntity?
 
     @Query("SELECT * FROM artworks WHERE id IN (SELECT artworkId FROM user_favorites WHERE userId = :userId)")
     fun getArtworksLikedByUser(userId: Long): Flow<List<ArtworkEntity>>
