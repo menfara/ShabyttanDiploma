@@ -3,26 +3,24 @@ package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
-import farkhat.myrzabekov.shabyttan.databinding.FragmentSearchBinding
-import farkhat.myrzabekov.shabyttan.databinding.FragmentSearchResultsBinding
 import farkhat.myrzabekov.shabyttan.databinding.FragmentSettingsBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.getStringInLocale
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
+
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
@@ -32,7 +30,6 @@ class SettingsFragment : Fragment() {
     private var savedLanguage: String = ""
 
     private lateinit var sharedPreferences: SharedPreferences
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +46,14 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initViewModelObservers()
+        setupLanguageSelector()
+    }
+
+    private fun initViewModelObservers() {
         viewModel.getUserId()
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            if (userId != null) {
-                savedUserId = userId
-            }
+            savedUserId = userId ?: -1
         }
 
         viewModel.getUserEmail()
@@ -68,31 +68,26 @@ class SettingsFragment : Fragment() {
 
         viewModel.getUserLanguage()
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
-            Log.d(">>> YourFragment", "User language: $language")
-            savedLanguage = language
-
-            binding.apply {
-                languageTextView.text = if (language == "ru") "Русский" else "English"
-
-
-                usernameLabelTextView.text =
-                    requireContext().getStringInLocale(R.string.username, language)
-                emailLabelTextView.text =
-                    requireContext().getStringInLocale(R.string.email, language)
-                languageLabelTextView.text =
-                    requireContext().getStringInLocale(R.string.language, language)
-
-
-            }
+            handleLanguageChange(language)
         }
+    }
 
+    private fun handleLanguageChange(language: String) {
+        savedLanguage = language
+        binding.apply {
+            languageTextView.text = if (language == "ru") "Русский" else "English"
+            usernameLabelTextView.text =
+                requireContext().getStringInLocale(R.string.username, language)
+            emailLabelTextView.text = requireContext().getStringInLocale(R.string.email, language)
+            languageLabelTextView.text =
+                requireContext().getStringInLocale(R.string.language, language)
+        }
+    }
 
-
+    private fun setupLanguageSelector() {
         binding.languageSelector.setOnClickListener { selectorView ->
             showLanguageMenu(selectorView)
         }
-
-
     }
 
     private fun showLanguageMenu(view: View) {
@@ -111,7 +106,6 @@ class SettingsFragment : Fragment() {
         }
         popupMenu.show()
     }
-
 
     private fun setLanguageAndNavigate(languageCode: String, view: View) {
         viewModel.setUserLanguage(languageCode)
@@ -136,6 +130,4 @@ class SettingsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }
-

@@ -1,13 +1,9 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
-import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -16,12 +12,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
-import farkhat.myrzabekov.shabyttan.data.repository.UserRepositoryImpl
 import farkhat.myrzabekov.shabyttan.databinding.DialogFullScreenImageBinding
 import farkhat.myrzabekov.shabyttan.databinding.FragmentArtworkBottomSheetBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.UIHelper
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
-import java.util.Locale
 
 @AndroidEntryPoint
 class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
@@ -46,48 +40,50 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (dialog as? BottomSheetDialog)?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-            ?.let { bottomSheet ->
-                BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
-            }
+
+        expandBottomSheetDialog()
 
         arguments?.getLong("artworkId")?.let { viewModel.getArtworkById(it) }
 
         viewModel.artworkByIdLiveData.observe(viewLifecycleOwner) { artwork ->
-            if (artwork != null) {
-                todayArtwork = artwork
+            artwork?.let {
+                todayArtwork = it
+                updateUI()
             }
+        }
+    }
 
-            val titleToShow =
-                if (savedLanguage == "ru") todayArtwork?.titleRu else todayArtwork?.title
-            val authorToShow =
-                if (savedLanguage == "ru") todayArtwork?.creatorRu else todayArtwork?.creator
-            val descriptionToShow =
-                if (savedLanguage == "ru") todayArtwork?.descriptionRu else todayArtwork?.description
-            val didYouKnowToShow =
-                if (savedLanguage == "ru") todayArtwork?.didYouKnowRu else todayArtwork?.didYouKnow
+    private fun expandBottomSheetDialog() {
+        (dialog as? BottomSheetDialog)?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            ?.let { bottomSheet ->
+                BottomSheetBehavior.from(bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
+            }
+    }
 
-            uiHelper.loadImage(binding.artImage, todayArtwork?.imageUrl)
-            binding.artAuthor.text = authorToShow ?: ""
-            binding.artTitle.text = titleToShow ?: ""
-            binding.artDescription.text = descriptionToShow ?: ""
-            binding.artFunFact.text = didYouKnowToShow ?: ""
+    private fun updateUI() {
 
-            uiHelper.setupAppBarListener(
-                binding.appbar,
-                binding.artImage,
-                binding.shareActionButton,
-                binding.likeActionButton
-            )
-            uiHelper.setupImageClickToShowDialog(binding.artImage) {
+        val titleToShow =
+            if (savedLanguage == "ru") todayArtwork?.titleRu else todayArtwork?.title
+        val authorToShow =
+            if (savedLanguage == "ru") todayArtwork?.creatorRu else todayArtwork?.creator
+        val descriptionToShow =
+            if (savedLanguage == "ru") todayArtwork?.descriptionRu else todayArtwork?.description
+        val didYouKnowToShow =
+            if (savedLanguage == "ru") todayArtwork?.didYouKnowRu else todayArtwork?.didYouKnow
+
+        with(binding) {
+            uiHelper.loadImage(artImage, todayArtwork?.imageUrl)
+            artAuthor.text = authorToShow.orEmpty()
+            artTitle.text = titleToShow.orEmpty()
+            artDescription.text = descriptionToShow.orEmpty()
+            artFunFact.text = didYouKnowToShow.orEmpty()
+
+            uiHelper.setupAppBarListener(appbar, artImage, shareActionButton, likeActionButton)
+            uiHelper.setupImageClickToShowDialog(artImage) {
                 DialogFullScreenImageBinding.inflate(layoutInflater)
             }
-            uiHelper.setupScrollViewListener(binding.nestedScrollView, binding.toTopActionButton)
-            uiHelper.setupToTopButton(
-                binding.toTopActionButton,
-                binding.nestedScrollView,
-                binding.appbar
-            )
+            uiHelper.setupScrollViewListener(nestedScrollView, toTopActionButton)
+            uiHelper.setupToTopButton(toTopActionButton, nestedScrollView, appbar)
             updateLikeButton()
             setupLikeButton()
             setupShareButton()

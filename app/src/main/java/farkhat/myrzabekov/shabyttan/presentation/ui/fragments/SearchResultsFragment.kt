@@ -12,6 +12,7 @@ import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
+import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
 import farkhat.myrzabekov.shabyttan.databinding.FragmentSearchResultsBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.OnArtworkClickListener
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.SearchResultRecyclerViewAdapter
@@ -33,56 +34,67 @@ class SearchResultsFragment : Fragment(), OnArtworkClickListener {
         _binding = FragmentSearchResultsBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        viewModel.getUserLanguage()
-        viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
-            Log.d(">>> YourFragment", "User language: $language")
-            savedLanguage = language
-            binding.apply {
-                textView.text = requireContext().getStringInLocale(R.string.search_results, language)
-
-                emptyTitleTextView.text = requireContext().getStringInLocale(R.string.no_result, language)
-                emptyInfoTextView.text = requireContext().getStringInLocale(R.string.no_result_info, language)
-            }
-        }
-
-        val receivedArguments = arguments
-        if (receivedArguments != null) {
-            val keyword = receivedArguments.getString("keyword").toString()
-            viewModel.searchArtworks(keyword)
-            viewModel.searchArtworksData.observe(viewLifecycleOwner) { artworks ->
-                val recyclerView = binding.recyclerView
-                val layoutManager = LinearLayoutManager(requireContext())
-                recyclerView.layoutManager = layoutManager
-                recyclerView.adapter =
-                    SearchResultRecyclerViewAdapter(requireContext(), artworks, savedLanguage, this)
-
-                if (artworks.isNotEmpty()) {
-                    binding.apply {
-                        emptyImageView.visibility = View.GONE
-                        emptyInfoTextView.visibility = View.GONE
-                        emptyTitleTextView.visibility = View.GONE
-                        root.gravity = Gravity.TOP
-                        binding.textView.visibility = View.VISIBLE
-                    }
-                } else {
-                    binding.apply {
-                        emptyImageView.visibility = View.VISIBLE
-                        emptyInfoTextView.visibility = View.VISIBLE
-                        emptyTitleTextView.visibility = View.VISIBLE
-                        root.gravity = Gravity.CENTER
-                        binding.textView.visibility = View.GONE
-                    }
-                }
-            }
-        }
-
-
-
-
+        initUI()
+        observeLanguage()
+        observeSearchResults()
 
         return view
     }
 
+    private fun initUI() {
+        val receivedArguments = arguments
+        if (receivedArguments != null) {
+            val keyword = receivedArguments.getString("keyword").toString()
+            viewModel.searchArtworks(keyword)
+        }
+    }
+
+    private fun observeLanguage() {
+        viewModel.getUserLanguage()
+        viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
+            Log.d(">>> YourFragment", "User language: $language")
+            savedLanguage = language
+            updateUIWithLanguage()
+        }
+    }
+
+    private fun updateUIWithLanguage() {
+        binding.apply {
+            textView.text = requireContext().getStringInLocale(R.string.search_results, savedLanguage)
+            emptyTitleTextView.text = requireContext().getStringInLocale(R.string.no_result, savedLanguage)
+            emptyInfoTextView.text = requireContext().getStringInLocale(R.string.no_result_info, savedLanguage)
+        }
+    }
+
+    private fun observeSearchResults() {
+        viewModel.searchArtworksData.observe(viewLifecycleOwner) { artworks ->
+            updateRecyclerView(artworks)
+        }
+    }
+
+    private fun updateRecyclerView(artworks: List<ArtworkEntity>) {
+        val recyclerView = binding.recyclerView
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter =
+            SearchResultRecyclerViewAdapter(requireContext(), artworks, savedLanguage, this)
+
+        binding.apply {
+            if (artworks.isNotEmpty()) {
+                emptyImageView.visibility = View.GONE
+                emptyInfoTextView.visibility = View.GONE
+                emptyTitleTextView.visibility = View.GONE
+                root.gravity = Gravity.TOP
+                textView.visibility = View.VISIBLE
+            } else {
+                emptyImageView.visibility = View.VISIBLE
+                emptyInfoTextView.visibility = View.VISIBLE
+                emptyTitleTextView.visibility = View.VISIBLE
+                root.gravity = Gravity.CENTER
+                textView.visibility = View.GONE
+            }
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -92,6 +104,5 @@ class SearchResultsFragment : Fragment(), OnArtworkClickListener {
     override fun onArtworkClick(artworkId: Long) {
         val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance(artworkId)
         bottomSheetFragment.show(childFragmentManager, "ArtworkBottomSheetTag")
-
     }
 }

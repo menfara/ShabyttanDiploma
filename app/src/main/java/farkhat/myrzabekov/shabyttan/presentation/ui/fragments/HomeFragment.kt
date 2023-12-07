@@ -4,15 +4,12 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.core.app.ActivityCompat
-import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
@@ -33,7 +30,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: MainViewModel by viewModels()
     private val uiHelper by lazy { UIHelper(this) }
-
 
     private var savedUserId: Long = -1
     private var savedLanguage: String = ""
@@ -57,14 +53,9 @@ class HomeFragment : Fragment() {
 
         viewModel.getArtworkByViewDate("26/11/2023")
 
-
         setupObservers()
-//        setupPreferences()
         setupLikeButton()
         setupShareButton()
-
-
-
     }
 
     private fun setupObservers() {
@@ -76,16 +67,11 @@ class HomeFragment : Fragment() {
             updateLikeButton()
         }
 
-
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
             if (userId != null) {
                 savedUserId = userId
             }
         }
-
-//        viewModel.languageLiveData.observe(viewLifecycleOwner) { language ->
-//            savedLanguage = language
-//        }
     }
 
     private fun updateArtworkDetails(artwork: ArtworkEntity?) {
@@ -122,7 +108,6 @@ class HomeFragment : Fragment() {
         )
 
         removePlaceholders()
-
     }
 
     private fun getLocalizedText(defaultValue: String?, localizedValue: String?): String {
@@ -142,21 +127,6 @@ class HomeFragment : Fragment() {
             }
     }
 
-
-    private fun setLocale(context: Context, language: String) {
-        val locale = Locale(language)
-        Locale.setDefault(locale)
-
-        val configuration = Configuration()
-        configuration.setLocale(locale)
-
-        context.resources.updateConfiguration(
-            configuration,
-            context.resources.displayMetrics
-        )
-    }
-
-
     private fun setupLikeButton() {
         binding.likeActionButton.setOnClickListener {
             Log.d(">>> savedUserId", savedUserId.toString())
@@ -169,7 +139,6 @@ class HomeFragment : Fragment() {
             uiHelper.shareArtworkDeepLink("https://farkhat.myrzabekov.shabyttan/artwork/${todayArtwork.id}")
         }
     }
-
 
     private fun removePlaceholders() {
         with(binding) {
@@ -188,8 +157,4 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-
 }
-
-

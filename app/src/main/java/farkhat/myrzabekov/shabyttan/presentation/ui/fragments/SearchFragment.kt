@@ -2,20 +2,18 @@ package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
-import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
 import farkhat.myrzabekov.shabyttan.databinding.FragmentSearchBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.ArtistRecyclerViewAdapter
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.HistoryRecyclerViewAdapter
@@ -47,59 +45,82 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initUI()
+        observeLanguage()
+        observeArtworksByCreator()
+        observeRecommendedArtworks()
+        observeLatestArtworks()
+        setupSearchActionListener()
+    }
+
+    private fun initUI() {
         setupArtistRecyclerViewUI()
         setupRecommendationRecyclerViewUI()
         setupHistoryRecyclerViewUI()
+    }
 
+    private fun observeLanguage() {
         viewModel.getUserLanguage()
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
             savedLanguage = language
-            binding.apply {
-                artistTextView.text =
-                    requireContext().getStringInLocale(R.string.author_paintings, language)
-                recommendationTextView.text =
-                    requireContext().getStringInLocale(R.string.recommended, language)
-                historyTextView.text =
-                    requireContext().getStringInLocale(R.string.history, language)
-                val hintText = requireContext().getStringInLocale(R.string.hint_search, language)
-                textBox.hint = hintText
-            }
+            updateUIWithLanguage()
         }
+    }
 
+    private fun updateUIWithLanguage() {
+        binding.apply {
+            artistTextView.text = requireContext().getStringInLocale(R.string.author_paintings, savedLanguage)
+            recommendationTextView.text = requireContext().getStringInLocale(R.string.recommended, savedLanguage)
+            historyTextView.text = requireContext().getStringInLocale(R.string.history, savedLanguage)
+            val hintText = requireContext().getStringInLocale(R.string.hint_search, savedLanguage)
+            textBox.hint = hintText
+        }
+    }
+
+    private fun observeArtworksByCreator() {
         viewModel.getArtworksByCreator("Claude Monet")
         viewModel.artworksByCreatorData.observe(viewLifecycleOwner) { artworks ->
             binding.horizontalRecyclerView.adapter = ArtistRecyclerViewAdapter(artworks, this)
         }
+    }
 
+    private fun observeRecommendedArtworks() {
         viewModel.getRecommendedArtworks()
         viewModel.recommendedArtworks.observe(viewLifecycleOwner) { artworks ->
             binding.recommendedRecyclerView.adapter =
                 RecommendationRecyclerViewAdapter(artworks, this)
         }
+    }
 
+    private fun observeLatestArtworks() {
         viewModel.getLatestArtworks()
         viewModel.latestArtworks.observe(viewLifecycleOwner) { artworks ->
             binding.historyRecyclerView.adapter =
                 HistoryRecyclerViewAdapter(artworks, this, savedLanguage)
         }
+    }
 
+    private fun setupSearchActionListener() {
         binding.textInputSearch.setOnEditorActionListener { it, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-
-                val inputMethodManager =
-                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
-
-
-                val bundle = Bundle()
-                bundle.putString("keyword", it.text.toString())
-
-                view.findNavController().navigate(R.id.searchResultsFragment, bundle)
+                hideKeyboard(it)
+                navigateToSearchResults(it.text.toString())
                 return@setOnEditorActionListener true
             }
             false
         }
+    }
 
+    private fun hideKeyboard(view: View) {
+        val inputMethodManager =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    private fun navigateToSearchResults(keyword: String) {
+        val bundle = Bundle()
+        bundle.putString("keyword", keyword)
+        view?.findNavController()?.navigate(R.id.searchResultsFragment, bundle)
     }
 
     private fun setupArtistRecyclerViewUI() {
@@ -139,5 +160,4 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
         val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance(artworkId)
         bottomSheetFragment.show(childFragmentManager, "ArtworkBottomSheetTag")
     }
-
 }
