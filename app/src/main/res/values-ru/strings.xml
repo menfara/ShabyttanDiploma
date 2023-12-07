@@ -28,4 +28,11 @@
     <string name="no_favorites_info">Нажмите кнопку \"Мне нравится\" на странице произведения, чтобы добавить ее в избранное.</string>
     <string name="no_result_info">Извините, мы не смогли найти никаких результатов\nпо вашему запросу.</string>
     <string name="no_result">Результатов не найдено!</string>
+    <string name="have_account">Вы уже зарегистрированы?</string>
+    <string name="subtitle">Искусство у тебя в кармане!</string>
+    <string name="sign_up">РЕГИСТРАЦИЯ</string>
+    <string name="password">Пароль</string>
+    <string name="sign_in">SIGN IN</string>
+    <string name="dont_have_acc">Нет аккаунта?</string>
+
 </resources>

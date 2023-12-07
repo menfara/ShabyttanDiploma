@@ -28,4 +28,10 @@
     <string name="no_favorites_info">Click the ‘Like’ button on any artwork\npage too add a favorite.</string>
     <string name="no_result_info">Sorry, we couldn\'t find any results\nfor your query.</string>
     <string name="no_result">No Results Found!</string>
+    <string name="have_account">Already have an account?</string>
+    <string name="subtitle">Everyday art in you pocket!</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="password">Password</string>
+    <string name="sign_in">SIGN IN</string>
+    <string name="dont_have_acc">Don\'t have an account?</string>
 </resources>

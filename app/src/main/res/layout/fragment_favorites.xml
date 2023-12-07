@@ -8,10 +8,10 @@
 
     <ImageView
         android:id="@+id/emptyImageView"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:src="@drawable/frame"
+        android:src="@drawable/frame_anim"
         app:layout_constraintBottom_toTopOf="@id/emptyTitleTextView"
         app:layout_constraintEnd_toEndOf="parent"
 
@@ -24,7 +24,7 @@
         android:id="@+id/emptyTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+
         android:fontFamily="@font/montserrat_semibold"
         android:text="@string/no_favorites_yet"
         android:textColor="@color/item_history_text"

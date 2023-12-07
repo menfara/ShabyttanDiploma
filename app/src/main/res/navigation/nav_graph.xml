@@ -32,4 +32,9 @@
             android:name="keyword"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/authorizationFragment3"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.AuthorizationFragment"
+        android:label="fragment_authorization"
+        tools:layout="@layout/fragment_authorization" />
 </navigation>

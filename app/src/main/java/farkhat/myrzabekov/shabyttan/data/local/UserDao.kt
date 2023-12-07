@@ -10,7 +10,7 @@ import farkhat.myrzabekov.shabyttan.data.local.entity.UserEntity
 interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUser(user: UserEntity)
+    suspend fun insertUser(user: UserEntity): Long
 
     @Query("SELECT * FROM users WHERE username = :username")
     suspend fun getUserByUsername(username: String): UserEntity?
@@ -23,5 +23,8 @@ interface UserDao {
 
     @Query("SELECT username FROM users WHERE id = :userId LIMIT 1")
     suspend fun getUserUsername(userId: Long): String
+    @Query("SELECT EXISTS (SELECT 1 FROM users WHERE username = :username AND password = :password)")
+    suspend fun authorizeUser(username: String, password: String): Boolean
+
 
 }

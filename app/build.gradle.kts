@@ -46,6 +46,8 @@ kapt {
 }
 
 dependencies {
+    // Splash Screen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // ViewPager
     implementation("androidx.viewpager2:viewpager2:1.0.0")

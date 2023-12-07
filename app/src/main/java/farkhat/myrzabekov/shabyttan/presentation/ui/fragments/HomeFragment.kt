@@ -78,7 +78,9 @@ class HomeFragment : Fragment() {
 
 
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            savedUserId = userId
+            if (userId != null) {
+                savedUserId = userId
+            }
         }
 
 //        viewModel.languageLiveData.observe(viewLifecycleOwner) { language ->

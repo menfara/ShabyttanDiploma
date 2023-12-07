@@ -1,5 +1,6 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
@@ -7,8 +8,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentFavoritesBinding
@@ -41,8 +44,10 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
         viewModel.getUserLanguage()
 
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            savedUserId = userId
-            viewModel.getArtworksLikedByUser(userId)
+            if (userId != null) {
+                savedUserId = userId
+                viewModel.getArtworksLikedByUser(userId)
+            }
         }
 
         viewModel.getUserLanguage()
@@ -50,8 +55,10 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
             Log.d(">>> YourFragment", "User language: $language")
             savedLanguage = language
             binding.apply {
-                emptyTitleTextView.text = requireContext().getStringInLocale(R.string.no_favorites_yet, language)
-                emptyInfoTextView.text = requireContext().getStringInLocale(R.string.no_favorites_info, language)
+                emptyTitleTextView.text =
+                    requireContext().getStringInLocale(R.string.no_favorites_yet, language)
+                emptyInfoTextView.text =
+                    requireContext().getStringInLocale(R.string.no_favorites_info, language)
             }
         }
 
@@ -75,12 +82,25 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
                 }
             }
 
+        animateImageView(binding.emptyImageView)
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun animateImageView(imageView: ImageView) =
+        imageView.drawable.apply {
+            when (this) {
+                is AnimatedVectorDrawableCompat -> this.start()
+                is AnimatedVectorDrawable -> this.start()
+                else -> { /* not an animated icon */
+                }
+            }
+        }
+
 
     override fun onArtworkClick(artworkId: Long) {
         val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance(artworkId)

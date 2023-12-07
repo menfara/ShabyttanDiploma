@@ -1,5 +1,6 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.findNavController
@@ -83,6 +85,12 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
 
         binding.textInputSearch.setOnEditorActionListener { it, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+
+                val inputMethodManager =
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
+
+
                 val bundle = Bundle()
                 bundle.putString("keyword", it.text.toString())
 

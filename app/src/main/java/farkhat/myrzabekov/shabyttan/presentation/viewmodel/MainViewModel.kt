@@ -37,6 +37,7 @@ class MainViewModel @Inject constructor(
     private val getGetLatestArtworksUseCase: GetLatestArtworksUseCase,
     private val getUserEmailUseCase: GetUserEmailUseCase,
     private val getUserUsername: GetUserUsernameUseCase,
+    private val authorizeUserUseCase: AuthorizeUserUseCase,
 
 
     ) : ViewModel() {
@@ -88,6 +89,8 @@ class MainViewModel @Inject constructor(
     private val _userUsernameLiveData = MutableLiveData<String>()
     val userUsernameLiveData: LiveData<String> get() = _userUsernameLiveData
 
+    private val _authorizeUserLiveData = MutableLiveData<Boolean>()
+    val authorizeUserLiveData: LiveData<Boolean> get() = _authorizeUserLiveData
 
     fun createUser(user: UserEntity) {
         viewModelScope.launch {
@@ -220,6 +223,10 @@ class MainViewModel @Inject constructor(
 
     fun setUserLanguage(language: String? = null) {
         viewModelScope.launch {
+            if (_languageStateFlow.value == "") {
+                setUserLanguageUseCase.setUserLanguage("")
+                return@launch
+            }
             if (language == null) {
                 setUserLanguageUseCase.setUserLanguage(
                     if (_languageStateFlow.value == "ru")
@@ -261,6 +268,13 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val username = getUserUsername.invoke()
             _userUsernameLiveData.value = username
+        }
+    }
+
+    fun authorizeUser(username: String, password: String) {
+        viewModelScope.launch {
+            val isAccessGranted = authorizeUserUseCase.invoke(username, password)
+            _authorizeUserLiveData.value = isAccessGranted
         }
     }
 

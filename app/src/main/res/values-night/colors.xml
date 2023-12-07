@@ -22,5 +22,7 @@
     <color name="settings_label">#939393</color>
     <color name="tab_indicator">#DBDBDB</color>
     <color name="empty_info">#9C9C9C</color>
+    <color name="auth_box_bg">#222222</color>
+    <color name="auth_box_icon">#CACACA</color>
 
 </resources>

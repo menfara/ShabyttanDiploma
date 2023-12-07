@@ -130,7 +130,9 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
 
         viewModel.getUserId()
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            savedUserId = userId
+            if (userId != null) {
+                savedUserId = userId
+            }
         }
 
     }

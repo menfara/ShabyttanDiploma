@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Shabyttan.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/fragment_search_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_anim</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.Shabyttan</item>
+    </style>
+</resources>

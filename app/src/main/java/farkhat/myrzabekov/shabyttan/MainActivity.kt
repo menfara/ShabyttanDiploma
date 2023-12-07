@@ -2,23 +2,19 @@ package farkhat.myrzabekov.shabyttan
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.graphics.Color
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.LocaleList
+import android.os.Handler
+import android.os.Looper
 import android.preference.PreferenceManager
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +24,6 @@ import farkhat.myrzabekov.shabyttan.databinding.ActivityMainBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.OnArtworkClickListener
 import farkhat.myrzabekov.shabyttan.presentation.ui.fragments.ArtworkBottomSheetFragment
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
-import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), OnArtworkClickListener {
@@ -38,10 +33,11 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen().setKeepOnScreenCondition { false }
         setContentView(binding.root)
 
 
-//        viewModel.getArtworkByViewDate("29/11/2023")
+//        viewModel.getArtworkByViewDate("29/11/2023")a
 
 //        viewModel.todayArtworkLiveData.observe(this) { artwork ->
 //            binding.textView.text = artwork?.titleRu ?: "Artwork not found"
@@ -50,13 +46,36 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 //        }
 
 
-
         createArtworks()
 
 
 
-        setupNavigation()
         handleDeepLink(intent)
+        setupPreDrawListener()
+
+        setupNavigation()
+    }
+
+    private fun setupPreDrawListener() {
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                private var isReady = false
+
+                override fun onPreDraw(): Boolean {
+                    if (!isReady) {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            isReady = true
+                            content.invalidate()
+                        }, 400)
+                        return false
+                    } else {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        return true
+                    }
+                }
+            }
+        )
     }
 
 
@@ -83,27 +102,130 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
             .findFragmentById(R.id.fragmentContainerView) as? NavHostFragment
             ?: return
         navController = navHostFragment.navController
-        binding.bottomnavigation.setupWithNavController(navController)
+
+
+        val isAuthenticated = isUserAuthenticated()
+
+        val inflater = navHostFragment.navController.navInflater
+        val graph = inflater.inflate(R.navigation.nav_graph)
+
+        if (isAuthenticated){
+            binding.bottomnavigation.setupWithNavController(navController)
+            graph.setStartDestination(R.id.homeFragment)
+        }else {
+            binding.bottomnavigation.visibility = View.GONE
+            graph.setStartDestination(R.id.authorizationFragment3)
+        }
+
+        navController.setGraph(graph, intent.extras)
+
     }
 
+    private fun isUserAuthenticated(): Boolean {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val userId = sharedPreferences.getLong("userId", -1)
+        Log.d(">>> USERIDFF:", userId.toString())
+        return userId != -1L
+    }
 
     private fun createArtworks() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val userId = sharedPreferences.getLong("userId", -1L)
-        Log.d(">>> userId", userId.toString())
-        if (userId != -1L) return
-
-        viewModel.createUser(
-            UserEntity(
-                username = "Farkhat",
-                email = "email@mail.com",
-                password = "pass"
-            )
-        )
-
-        viewModel.setUserId(1)
+        val isFirstLaunch = sharedPreferences.getBoolean("first_launch", true)
+        Log.d(">>> isFirstLaunch", isFirstLaunch.toString())
+        if (!isFirstLaunch) return
+        with(sharedPreferences.edit()) {
+            putBoolean("first_launch", false)
+            apply()
+        }
+//        viewModel.createUser(
+//            UserEntity(
+//                username = "Farkhat",
+//                email = "email@mail.com",
+//                password = "pass"
+//            )
+//        )
+//
+//        viewModel.setUserId(1)
         viewModel.setUserLanguage()
         val artworksList = listOf(
+            ArtworkEntity(
+                title = "Sadko",
+                titleRu = "Садко",
+
+                creator = "Ilya Efimovich Repin",
+                creatorRu = "Илья Ефимович Репин",
+
+                creationDate = "1876",
+                creationDateRu = "1876",
+
+                technique = "Oil painting",
+                techniqueRu = "Масляная живопись",
+
+                type = "Literary scene",
+                typeRu = "Литературная сцена",
+
+                description = "Repin executed his Sadko painting in Paris. Having received the Great Gold Medal of the Academy of Arts for his Raising of Jairus’ Daughter, Repin received the right to a pensioner (that is, paid by the Academy) trip to Europe. The image of Sadko was painted from Victor Vasnetsov, who later became famous, among other things, for his fairy-tale subjects (he depicted his own Sadko). The theme of the picture was the Novgorod epic about the guslar Sadko, who became rich with the help of the sea king. His merchant ships froze in the middle of the sea and, to appease the sea lord, Sadko sank to the bottom. The painting depicts the moment when, by order of the sea king, he chooses a wife for himself in the underwater kingdom. Gorgeous beauties pass in front of him, but according to advice received from Nicholas of Mozhaysk (later called Nicholas the Wonderworker), Sadko chose a simple Russian girl Chernavka, who is visible in the background. To create the magical space of the underwater kingdom, Repin examined the Berlin marine aquarium, admired the marine life in Normandy, and visited the Crystal Palace in London. According to legend, he painted the seabed in the Parisian oceanarium. Bizarre algae, amazing fish, shellfish, starfish create a fabulous atmosphere. The chain of beauties passing in front of Sadko eradiates light, they seem to be underwater treasures worth descending to the bottom of the sea. Sadko is holding a gusli, his gaze is directed into the distance, where Chernavka is half-turned and also looks at him. In the same place, in the depths of space, a goldfish is visible — it was she who brought him good luck in the epic. One of the interpretations of the picture — the girls swimming in front of him personify different countries and artistic movements, but the hero’s heart is in a simple Russian girl. Such a version was suggested by Repin himself, speaking of the Sadko’s choice: “The idea expresses my present position and, perhaps, the position of all Russian art as yet.” It is appropriate to recall here that in 1874 the first exhibition of the Impressionists was held in Paris, and Repin visited it. He was fascinated by technique, but he found no sense in the new art movement. However, it’s not cut and dried; not accepting the “pure art”, Repin tried to follow its postulates from time to time, condemning the journalism of critical realism.",
+                descriptionRu = "Репин выполнил свою картину \"Садко\" в Париже. Получив Большую золотую медаль Академии художеств за воспитание дочери Иаира, Репин получил право на пенсионную (то есть оплачиваемую Академией) поездку в Европу. Образ Садко был написан с Виктора Васнецова, который впоследствии прославился, помимо прочего, своими сказочными сюжетами (он изобразил своего собственного Садко). Темой картины стала новгородская былина о гусляре Садко, разбогатевшем с помощью морского царя. Его торговые корабли замерзли посреди моря, и, чтобы умилостивить морского владыку, Садко опустился на дно. На картине изображен момент, когда по приказу морского царя он выбирает себе жену в подводном царстве. Великолепные красавицы проходят перед ним, но по совету, полученному от Николая Можайского (позже названного Николаем Чудотворцем), Садко выбрал простую русскую девушку Чернавку, которая видна на заднем плане. Чтобы создать волшебное пространство подводного царства, Репин осмотрел Берлинский морской аквариум, полюбовался морскими обитателями Нормандии и посетил Хрустальный дворец в Лондоне. Согласно легенде, он нарисовал морское дно в парижском океанариуме. Причудливые водоросли, удивительные рыбы, моллюски, морские звезды создают сказочную атмосферу. Вереница красавиц, проходящих перед \"Садко\", затмевает свет, они кажутся подводными сокровищами, достойными того, чтобы опуститься на дно морское. Садко держит в руках гусли, его взгляд устремлен вдаль, где Чернавка стоит вполоборота и тоже смотрит на него. Там же, в глубинах космоса, видна золотая рыбка — именно она принесла ему удачу в эпопее. Одна из интерпретаций картины — проплывающие перед ним девушки олицетворяют разные страны и художественные течения, но сердце героя - в простой русской девушке. Такую версию предложил сам Репин, говоря о выборе “Садко”: \"Идея выражает мою нынешнюю позицию и, возможно, позицию всего русского искусства на данный момент\". Здесь уместно вспомнить, что в 1874 году в Париже состоялась первая выставка импрессионистов, и Репин посетил ее. Он был очарован техникой, но не нашел смысла в новом художественном движении. Однако это не так просто; не принимая “чистое искусство”, Репин время от времени пытался следовать его постулатам, осуждая публицистику критического реализма.",
+
+                didYouKnow = "For the first time the public saw Sadko at the Paris Salon of 1876. Its appearance wasn’t noticed in France, but in Russia, Repin was awarded the title of academician for this work. The canvas was immediately acquired by the Grand Duke Alexander (future Emperor Alexander III). Meanwhile, the artist himself had a low opinion of the picture, considering it tasteless and vulgar. However, Repin was often overstrict with himself and admitted that seeing his paintings at exhibitions and in museums, he felt “hopelessly unhappy”, because he found his own creations mediocre.",
+                didYouKnowRu = "Впервые публика увидела \"Садко\" на Парижском салоне 1876 года. Его появление не было замечено во Франции, но в России Репину за эту работу было присвоено звание академика. Полотно сразу же приобрел великий князь Александр (будущий император Александр III). Между тем сам художник был невысокого мнения о картине, считая ее безвкусной и вульгарной. Однако Репин часто был слишком строг к себе и признавался, что, видя свои картины на выставках и в музеях, чувствовал себя “безнадежно несчастным”, поскольку находил собственные творения посредственными.",
+
+                imageUrl = "https://arthive.net/res/media/img/oy1200/work/659/294313@2x.webp",
+                viewDate = "2023/12/05"
+            ),
+
+            ArtworkEntity(
+                title = "The Death of Socrates",
+                titleRu = "Смерть Сократа",
+
+                creator = "Jacques-Louis David",
+                creatorRu = "Жак Луи Давид",
+
+                creationDate = "1787",
+                creationDateRu = "1787",
+
+                technique = "Oil painting",
+                techniqueRu = "Масляная живопись",
+
+                type = "Historical scene",
+                typeRu = "Историческая сцена",
+
+                description = "A bright representative of French classicism, Jacques-Louis David often chose scenes from ancient history for his canvases, which became close to him after his stay in Italy. In this painting, Socrates, ready to drink a cup of poison according to the verdict of the court, addresses the students with farewell words. The philosopher raised his hand and extended the other towards the bowl. His gesture, when his hand is about to touch a vessel with a deadly drink, but still does not touch it, hanging in the air, is key, because it creates the impression of stopped time. As a result, no matter how much the followers of Socrates suffered, death was defeated, because the teacher himself forgot about it, carried away by what he would tell his followers and leave behind. The theme of the immortality of the human spirit is emphasized by the greatness of the depicted people, expressed in their movements and faces, the restrained monochrome color of the canvas and the entire composition: the location of the characters along the front plane of the painting resembles a frieze, which gives solemnity to the whole scene. The artist-engraver John Boydell enthusiastically wrote to the English portrait painter Sir Joshua Reynolds that David's work is \"the greatest achievement in art after Michelangelo's Sistine Chapel and Raphael's Stanzas... This work would have done credit to Athens in the time of Pericles.\"",
+                descriptionRu = "Яркий представитель французского классицизма Жак-Луи Давид нередко выбирал для своих полотен сцены из античной истории, ставшей ему близкой после пребывания в Италии. На этой картине Сократ, готовый выпить по приговору суда чашу с ядом, обращается к ученикам с прощальными словами. Философ поднял руку, а другую протянул в сторону чаши. Его жест, когда рука вот-вот коснется сосуда со смертельным напитком, но все-таки не касается его, повисая в воздухе, - ключевой, потому что создает впечатление остановившегося времени. В результате, как бы ни страдали последователи Сократа, смерть побеждена, потому что о ней забыл и сам учитель, увлеченный тем, что скажет своим последователям и оставит после себя. Тема бессмертия человеческого духа подчеркнута величием изображенных людей, выраженным в их движениях и лицах, сдержанным монохромным колоритом полотна и всей композицией: расположение персонажей вдоль передней плоскости картины напоминает фриз, что придает торжественность всей сцене. Художник-гравер Джон Бойдел восторженно писал английскому портретисту сэру Джошуа Рейнолдсу, что работа Давида - «величайшее достижение в искусстве после Сикстинской капеллы Микеланджело и Станц Рафаэля... Это произведение сделало бы честь Афинам во времена Перикла».",
+
+                didYouKnow = "David conceived the idea of painting this canvas when the revolution in France was already close. The purpose of his work was to strengthen the spirit of fellow citizens by an example of Socratic fortitude.",
+                didYouKnowRu = "Давид задумал написать это полотно, когда революция во Франции была уже близка. Целью его произведения было укрепление духа сограждан примером сократовской стойкости.",
+
+                imageUrl = "https://arthive.net/res/media/img/oy800/work/f09/534774@2x.webp",
+                viewDate = "2023/12/04"
+            ),
+
+            ArtworkEntity(
+                title = "Cossacks writing a letter to the Turkish Sultan",
+                titleRu = "Запорожцы",
+
+                creator = "Ilya Efimovich Repin",
+                creatorRu = "Илья Ефимович Репин",
+
+                creationDate = "1891",
+                creationDateRu = "1891",
+
+                technique = "Oil painting",
+                techniqueRu = "Масляная живопись",
+
+                type = "Historical scene",
+                typeRu = "Историческая сцена",
+
+                description = "Repin's monumental painting \"The Cossacks\" depicts a historical incident inspired by an epistolary incident involving Cossacks and a Turkish bishop. The artist gathered material for the painting during his visits to Ukraine in the 1880s, where he was accompanied by his apprentice Valentin Serov. The painting captures the irrepressible spirit of freedom among the Ukrainian Cossacks, influenced in part by Gogol's \"Taras Bulba.\" The composition features prominent figures such as Taras Bulba and his son Andrew, along with chieftain Ivan Sirko and advisor Dmitry Yavorsky. Repin carefully orchestrated the circular composition, symbolizing the power and strength of Zaporozhye freemen. The painting serves as an encyclopedia of laughter, depicting various shades of humor, from a thin smile to infectious laughter. Repin faced criticism, especially when he \"closed\" one of the Cossack figures, altering the original composition. Despite doubts about his talent, Repin remained unwavering in his vision for \"The Cossacks,\" considering it a harmonious masterpiece that captures the essence of the rebellious, freedom-loving Cossacks and the spirit of the Zaporozhian Sich.",
+                descriptionRu = "Монументальная картина Репина \"Казаки\" изображает историческое происшествие, вдохновленное эпистолярным инцидентом с участием казаков и турецкого епископа. Художник собрал материал для картины во время своих визитов в Украину в 1880-х годах, где его сопровождал его ученик Валентин Серов. Картина отражает неуемный дух свободы среди украинского казачества, отчасти под влиянием гоголевского \"Тараса Бульбы\". В композиции представлены такие выдающиеся фигуры, как Тарас Бульба и его сын Андрей, а также атаман Иван Сирко и советник Дмитрий Яворский. Репин тщательно срежиссировал круговую композицию, символизирующую мощь и крепкую силу запорожской вольницы. Картина служит энциклопедией смеха, изображая различные оттенки юмора, от тонкой улыбки до заразительного смеха. Репин столкнулся с критикой, особенно когда он \"закрыл\" одну из фигур казака, изменив первоначальную композицию. Несмотря на сомнения в своем таланте, Репин остался непоколебим в своем видении \"Казаков\", считая его гармоничным шедевром, передающим сущность мятежного, свободолюбивого казачества и дух Запорожской Сечи.",
+
+                didYouKnow = "Despite being a renowned artist, Repin had a playful and humorous side. He was known for creating caricatures and cartoons, often entertaining his friends and fellow artists with his wit. This lighter side of Repin, expressed through humor and satire, provided a delightful contrast to the powerful and serious themes often depicted in his major works. It showcases that even great artists have a capacity for joy and levity in addition to their profound artistic skills.",
+                didYouKnowRu = "Несмотря на то, что Репин был известным художником, у него была игривая и юмористическая сторона. Он был известен тем, что создавал карикатуры и карикатуристов, часто развлекая своих друзей и коллег-художников своим остроумием. Эта светлая сторона Репина, выраженная через юмор и сатиру, создавала восхитительный контраст с сильными и серьезными темами, часто изображаемыми в его основных работах. Это демонстрирует, что даже великие художники обладают способностью к радости и легкомыслию в дополнение к своим глубоким художественным навыкам.",
+
+                imageUrl = "https://arthive.net/res/media/img/oy800/work/e28/352452@2x.webp",
+                viewDate = "2023/12/03"
+            ),
+
             ArtworkEntity(
                 title = "Hunting trophy",
                 titleRu = "Охотничий трофей",

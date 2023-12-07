@@ -67,8 +67,10 @@ class ProfileFragment : Fragment() {
 
         viewModel.getUserId()
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            savedUserId = userId
-            viewModel.getArtworksLikedByUser(userId)
+            if (userId != null) {
+                savedUserId = userId
+                viewModel.getArtworksLikedByUser(userId)
+            }
         }
 
         viewModel.getUserLanguage()
@@ -125,6 +127,16 @@ class ProfileFragment : Fragment() {
         }
 
 
+        binding.logoutImageView.setOnClickListener {
+            viewModel.setUserId(-1)
+            recreateActivity()
+        }
+
+    }
+    private fun recreateActivity() {
+        val intent = requireActivity().intent
+        requireActivity().finish()
+        startActivity(intent)
     }
 
 

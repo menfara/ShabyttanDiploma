@@ -7,7 +7,8 @@
     android:background="@color/fragment_search_bg"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="16dp"
     tools:context=".presentation.ui.fragments.SearchResultsFragment">
 
     <ImageView

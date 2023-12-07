@@ -216,4 +216,12 @@ object AppModule {
     ): GetUserUsernameUseCase {
         return GetUserUsernameUseCaseImpl(userRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideAuthorizeUserUseCase(
+        userRepository: UserRepository
+    ): AuthorizeUserUseCase {
+        return AuthorizeUserUseCaseImpl(userRepository)
+    }
 }
