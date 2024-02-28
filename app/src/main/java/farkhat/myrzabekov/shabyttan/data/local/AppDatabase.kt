@@ -10,7 +10,7 @@ import farkhat.myrzabekov.shabyttan.data.local.entity.UserFavoritesEntity
 
 @Database(
     entities = [UserEntity::class, ArtworkEntity::class, UserFavoritesEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

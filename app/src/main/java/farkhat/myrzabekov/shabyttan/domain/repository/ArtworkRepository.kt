@@ -10,6 +10,7 @@ interface ArtworkRepository {
     suspend fun getAllArtworks(): List<ArtworkEntity>
 
     suspend fun getArtworkById(artworkId: Long): ArtworkEntity?
+    suspend fun getArtworkByFirestoreId(artworkId: String): ArtworkEntity?
 
     suspend fun getArtworkByViewDate(): ArtworkEntity?
 

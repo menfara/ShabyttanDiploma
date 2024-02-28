@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "artworks")
 class ArtworkEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    var firestoreId: String = "",
     val title: String,
     val titleRu: String,
 
@@ -29,4 +30,20 @@ class ArtworkEntity(
 
     val imageUrl: String,
     var viewDate: String? = null
-)
+) {
+    constructor() : this(
+        id = 0,
+        firestoreId = "",
+        title = "",
+        titleRu = "",
+        technique = "",
+        techniqueRu = "",
+        type = "",
+        typeRu = "",
+        description = "",
+        descriptionRu = "",
+        didYouKnow = "",
+        didYouKnowRu = "",
+        imageUrl = ""
+    )
+}

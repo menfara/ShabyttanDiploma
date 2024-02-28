@@ -1,5 +1,6 @@
 package farkhat.myrzabekov.shabyttan.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import farkhat.myrzabekov.shabyttan.data.local.entity.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.artwork.*
+import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.AddArtworkFirestoreUseCase
+import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.GetArtworkByIdFirestoreUseCase
 import farkhat.myrzabekov.shabyttan.presentation.usecase.user.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.user.favorites.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +41,8 @@ class MainViewModel @Inject constructor(
     private val getUserEmailUseCase: GetUserEmailUseCase,
     private val getUserUsername: GetUserUsernameUseCase,
     private val authorizeUserUseCase: AuthorizeUserUseCase,
-
+    private val addArtworkFirestoreUseCase: AddArtworkFirestoreUseCase,
+    private val getArtworkByIdFirestoreUseCase: GetArtworkByIdFirestoreUseCase,
 
     ) : ViewModel() {
 
@@ -91,6 +95,13 @@ class MainViewModel @Inject constructor(
 
     private val _authorizeUserLiveData = MutableLiveData<Boolean>()
     val authorizeUserLiveData: LiveData<Boolean> get() = _authorizeUserLiveData
+
+    private val _addArtworkResult = MutableLiveData<Boolean>()
+    val addArtworkResult: LiveData<Boolean>
+        get() = _addArtworkResult
+
+    private val _artworkLiveData = MutableLiveData<ArtworkEntity?>()
+    val artworkLiveData: LiveData<ArtworkEntity?> = _artworkLiveData
 
     fun createUser(user: UserEntity) {
         viewModelScope.launch {
@@ -278,4 +289,26 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun addArtworkToFirestore(artwork: ArtworkEntity) {
+        viewModelScope.launch {
+            try {
+                addArtworkFirestoreUseCase.invoke(artwork)
+                _addArtworkResult.value = true
+            } catch (e: Exception) {
+                _addArtworkResult.value = false
+                Log.e("MainViewModel", "Error adding artwork to Firestore", e)
+            }
+        }
+    }
+    fun getArtworkByIdFirestore(artworkId: String) {
+        viewModelScope.launch {
+            try {
+                val artwork = getArtworkByIdFirestoreUseCase(artworkId)
+                _artworkLiveData.value = artwork
+            } catch (e: Exception) {
+                // Handle error
+                Log.e("YourViewModel", "Error getting artwork by ID", e)
+            }
+        }
+    }
 }

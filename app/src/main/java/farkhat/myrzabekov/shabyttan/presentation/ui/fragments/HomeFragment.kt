@@ -56,6 +56,7 @@ class HomeFragment : Fragment() {
         setupObservers()
         setupLikeButton()
         setupShareButton()
+        todayArtwork = ArtworkEntity()
     }
 
     private fun setupObservers() {

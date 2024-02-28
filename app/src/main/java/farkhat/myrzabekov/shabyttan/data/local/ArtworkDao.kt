@@ -19,6 +19,9 @@ interface ArtworkDao {
     @Query("SELECT * FROM artworks WHERE id = :artworkId")
     suspend fun getArtworkById(artworkId: Long): ArtworkEntity?
 
+    @Query("SELECT * FROM artworks WHERE firestoreId = :artworkId")
+    suspend fun getArtworkByFirestoreId(artworkId: String): ArtworkEntity?
+
     @Query("SELECT * FROM artworks ORDER BY viewDate DESC LIMIT 1")
     suspend fun getArtworkByViewDate(): ArtworkEntity?
 

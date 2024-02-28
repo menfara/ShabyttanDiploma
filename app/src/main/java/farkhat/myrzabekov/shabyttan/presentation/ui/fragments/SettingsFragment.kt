@@ -3,6 +3,7 @@ package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
+import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
 import farkhat.myrzabekov.shabyttan.databinding.FragmentSettingsBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.getStringInLocale
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
@@ -91,6 +93,46 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showLanguageMenu(view: View) {
+//        val artwork = ArtworkEntity(
+//            title = "Starry Night",
+//            titleRu = "Звездная ночь",
+//
+//            creator = "Vincent van Gogh",
+//            creatorRu = "Винсент ван Гог",
+//
+//            creationDate = "1889",
+//            creationDateRu = "1889 год",
+//
+//            technique = "Oil on Canvas",
+//            techniqueRu = "Масло, холст",
+//
+//            type = "Post-Impressionism",
+//            typeRu = "Постимпрессионизм",
+//
+//            description = "Starry Night is one of Vincent van Gogh's most famous paintings...",
+//            descriptionRu = "«Звездная ночь» — одна из самых известных картин Винсента ван Гога...",
+//
+//            didYouKnow = "Did you know that Starry Night depicts the view from the east-facing window of Van Gogh's asylum room...",
+//            didYouKnowRu = "Знали ли вы, что «Звездная ночь» изображает вид из окна психиатрической больницы, в которой находился Ван Гог?",
+//
+//            imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/798px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+//
+//            viewDate = null
+//        )
+//        viewModel.addArtworkToFirestore(artwork)
+
+
+        viewModel.getArtworkByIdFirestore("CUMS8Hb1TqFDwQels13J")
+
+        viewModel.artworkLiveData.observe(requireActivity()) { artwork ->
+            artwork?.let {
+                Log.d(
+                    "Artwork",
+                    "Title: ${it.title}, Creator: ${it.creator}, Description: ${it.description}"
+                )
+            } ?: Log.d("Artwork", "Artwork is null")
+        }
+
         val languageMap = mapOf(
             R.id.menu_item_language_1 to "en",
             R.id.menu_item_language_2 to "ru"

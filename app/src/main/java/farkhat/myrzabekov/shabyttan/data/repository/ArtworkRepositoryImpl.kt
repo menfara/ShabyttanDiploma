@@ -23,6 +23,10 @@ class ArtworkRepositoryImpl @Inject constructor(private val artworkDao: ArtworkD
         return artworkDao.getArtworkById(artworkId)
     }
 
+    override suspend fun getArtworkByFirestoreId(artworkId: String): ArtworkEntity? {
+        return artworkDao.getArtworkByFirestoreId(artworkId)
+    }
+
     override suspend fun getArtworkByViewDate(): ArtworkEntity? {
         return artworkDao.getArtworkByViewDate()
     }

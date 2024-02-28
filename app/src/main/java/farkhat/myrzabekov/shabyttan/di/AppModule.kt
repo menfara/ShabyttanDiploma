@@ -10,9 +10,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import farkhat.myrzabekov.shabyttan.data.local.*
+import farkhat.myrzabekov.shabyttan.data.remote.FirestoreRepositoryImpl
 import farkhat.myrzabekov.shabyttan.data.repository.*
 import farkhat.myrzabekov.shabyttan.domain.repository.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.artwork.*
+import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.AddArtworkFirestoreUseCase
+import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.AddArtworkFirestoreUseCaseImpl
+import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.GetArtworkByIdFirestoreUseCase
+import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.GetArtworkByIdUseFirestoreCaseImpl
 import farkhat.myrzabekov.shabyttan.presentation.usecase.user.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.user.favorites.*
 import javax.inject.Singleton
@@ -28,7 +33,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "app_database"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
@@ -223,5 +228,23 @@ object AppModule {
         userRepository: UserRepository
     ): AuthorizeUserUseCase {
         return AuthorizeUserUseCaseImpl(userRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirestoreRepository(artworkDao: ArtworkDao): FirestoreRepository {
+        return FirestoreRepositoryImpl(artworkDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAddArtworkUseCase(firestoreRepository: FirestoreRepository): AddArtworkFirestoreUseCase {
+        return AddArtworkFirestoreUseCaseImpl(firestoreRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetArtworkByIdFireStoreUseCase(firestoreRepository: FirestoreRepository): GetArtworkByIdFirestoreUseCase {
+        return GetArtworkByIdUseFirestoreCaseImpl(firestoreRepository)
     }
 }

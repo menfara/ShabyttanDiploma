@@ -34,4 +34,7 @@
     <string name="password">Password</string>
     <string name="sign_in">SIGN IN</string>
     <string name="dont_have_acc">Don\'t have an account?</string>
+    <string name="for_you">For you</string>
+    <string name="events">Events</string>
+    <string name="discover">Discover</string>
 </resources>

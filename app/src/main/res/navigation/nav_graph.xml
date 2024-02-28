@@ -17,6 +17,12 @@
         <argument
             android:name="isLanguageRefresh"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_profileFragment_to_addArtworkFragment"
+            app:destination="@id/addArtworkFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_discoverFragment"
+            app:destination="@id/discoverFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -37,4 +43,13 @@
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.AuthorizationFragment"
         android:label="fragment_authorization"
         tools:layout="@layout/fragment_authorization" />
+    <fragment
+        android:id="@+id/addArtworkFragment"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.AddArtworkFragment"
+        android:label="fragment_add_artwork"
+        tools:layout="@layout/fragment_add_artwork" />
+    <fragment
+        android:id="@+id/discoverFragment"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.DiscoverFragment"
+        android:label="DiscoverFragment" />
 </navigation>
