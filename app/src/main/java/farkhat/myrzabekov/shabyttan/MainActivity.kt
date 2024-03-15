@@ -104,29 +104,26 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
         navController = navHostFragment.navController
 
 
-        val isAuthenticated = isUserAuthenticated()
+
 
         val inflater = navHostFragment.navController.navInflater
         val graph = inflater.inflate(R.navigation.nav_graph)
 
-        if (isAuthenticated){
-            binding.bottomnavigation.setupWithNavController(navController)
-            graph.setStartDestination(R.id.homeFragment)
-        }else {
-            binding.bottomnavigation.visibility = View.GONE
-            graph.setStartDestination(R.id.authorizationFragment3)
-        }
+
+        binding.bottomnavigation.setupWithNavController(navController)
+        graph.setStartDestination(R.id.homeFragment)
+
+
+//        else {
+//            binding.bottomnavigation.visibility = View.GONE
+//            graph.setStartDestination(R.id.authorizationFragment3)
+//        }
 
         navController.setGraph(graph, intent.extras)
 
     }
 
-    private fun isUserAuthenticated(): Boolean {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val userId = sharedPreferences.getLong("userId", -1)
-        Log.d(">>> USERIDFF:", userId.toString())
-        return userId != -1L
-    }
+
 
     private fun createArtworks() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)

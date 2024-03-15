@@ -1,5 +1,6 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -25,16 +26,25 @@ class EventAdapter : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiffC
         RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Event) {
             binding.apply {
+                Log.d("EventAdapter", event.title)
                 titleTextView.text = event.title
                 locationTextView.text = event.location
                 freeTextView.text = if (event.isFree) "Free" else "Paid"
 
                 Glide.with(itemView)
                     .load(event.imageUrl)
-                    .placeholder(R.drawable.placeholder_image)
+//                    .placeholder(R.drawable.placeholder_image)
                     .into(imageView)
             }
         }
+    }
+
+    fun addAll(newList: List<Event>) {
+        val updatedList = mutableListOf<Event>().apply {
+            addAll(currentList)
+            addAll(newList)
+        }
+        submitList(updatedList)
     }
 }
 

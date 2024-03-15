@@ -5,19 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentDiscoverBinding
-import farkhat.myrzabekov.shabyttan.databinding.FragmentEventsBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.DiscoverPagerAdapter
-import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.DiscoverRecyclerViewAdapter
-import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.ProfilePagerAdapter
 
 
 @AndroidEntryPoint
@@ -52,7 +47,9 @@ class DiscoverFragment : Fragment() {
                 else -> throw IllegalArgumentException("Invalid position: $position")
             }
         }.attach()
-
+        binding.searchButton.setOnClickListener {
+            findNavController().navigate(R.id.action_discoverFragment_to_searchFragment)
+        }
     }
 
     override fun onDestroyView() {

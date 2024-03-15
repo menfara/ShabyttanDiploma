@@ -51,6 +51,11 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
         observeRecommendedArtworks()
         observeLatestArtworks()
         setupSearchActionListener()
+
+        binding.textInputSearch.requestFocus()
+        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(binding.textInputSearch, InputMethodManager.SHOW_IMPLICIT)
+
     }
 
     private fun initUI() {

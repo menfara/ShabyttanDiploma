@@ -6,7 +6,7 @@
         android:title=""
         />
     <item
-        android:id="@+id/searchFragment"
+        android:id="@+id/discoverFragment"
         android:icon="@drawable/ic_search"
         android:title=""
         android:tint="@color/ic_color" />

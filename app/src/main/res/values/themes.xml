@@ -9,6 +9,8 @@
         <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <item name="android:navigationBarColor">#7A7A7A</item>
 
+        <!-- Material Calendar overlay -->
+        <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
     </style>
 
     <style name="Theme.Shabyttan" parent="Base.Theme.Shabyttan" />

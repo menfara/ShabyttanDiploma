@@ -33,7 +33,6 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentArtworkBottomSheetBinding.inflate(inflater, container, false)
-        viewModel.getAllArtworks()
         setupPreferences()
         return binding.root
     }
@@ -44,8 +43,16 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
         expandBottomSheetDialog()
 
         arguments?.getLong("artworkId")?.let { viewModel.getArtworkById(it) }
+        arguments?.getString("artworkIdFirestore")?.let { viewModel.getArtworkByIdFirestore(it) }
 
         viewModel.artworkByIdLiveData.observe(viewLifecycleOwner) { artwork ->
+            artwork?.let {
+                todayArtwork = it
+                updateUI()
+            }
+        }
+
+        viewModel.artworkLiveData.observe(viewLifecycleOwner) { artwork ->
             artwork?.let {
                 todayArtwork = it
                 updateUI()
@@ -144,6 +151,14 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
             arguments = Bundle().apply {
                 if (artworkId != null) {
                     putLong("artworkId", artworkId)
+                }
+            }
+        }
+
+        fun newInstance(artworkId: String?) = ArtworkBottomSheetFragment().apply {
+            arguments = Bundle().apply {
+                if (artworkId != null) {
+                    putString("artworkIdFirestore", artworkId)
                 }
             }
         }

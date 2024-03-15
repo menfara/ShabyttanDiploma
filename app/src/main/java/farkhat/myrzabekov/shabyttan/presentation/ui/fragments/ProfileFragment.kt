@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
@@ -22,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentProfileBinding
@@ -63,6 +65,11 @@ class ProfileFragment : Fragment() {
     @SuppressLint("StringFormatInvalid")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!viewModel.isUserAuth()) {
+            Toast.makeText(requireContext(), "not auth", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_profileFragment_to_signInFragment)
+        }
 
         viewModel.getUserId()
         viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
@@ -127,19 +134,17 @@ class ProfileFragment : Fragment() {
 
 
         binding.logoutImageView.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+
             viewModel.setUserId(-1)
             recreateActivity()
         }
 
 
         binding.bannerImageView.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_addArtworkFragment)
+
         }
 
-        binding.bannerImageView.setOnLongClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_discoverFragment)
-            return@setOnLongClickListener false
-        }
     }
 
     private fun recreateActivity() {

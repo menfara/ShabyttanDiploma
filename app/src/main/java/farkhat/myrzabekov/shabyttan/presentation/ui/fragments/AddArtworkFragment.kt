@@ -5,12 +5,15 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import com.google.android.material.datepicker.MaterialDatePicker
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentAddArtworkBinding
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
@@ -18,7 +21,11 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import java.util.UUID
+
 @AndroidEntryPoint
 class AddArtworkFragment : Fragment() {
     private var _binding: FragmentAddArtworkBinding? = null
@@ -34,7 +41,8 @@ class AddArtworkFragment : Fragment() {
         _binding = FragmentAddArtworkBinding.inflate(inflater, container, false)
 
         binding.uploadImage.setOnClickListener {
-            openImagePicker()
+//            openImagePicker()
+            showDateRangePicker()
         }
 
         binding.submit.setOnClickListener {
@@ -42,6 +50,11 @@ class AddArtworkFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        super.onViewCreated(view, savedInstanceState)
     }
 
     private fun openImagePicker() {
@@ -55,14 +68,13 @@ class AddArtworkFragment : Fragment() {
                 val data: Intent? = result.data
                 data?.data?.let { uri ->
                     imageUri = uri
-                    // Set the selected image to an ImageView or display it as needed
                 }
             }
         }
 
     private fun uploadImageToStorage() {
         imageUri?.let { uri ->
-            val imageName = UUID.randomUUID().toString() // Generate a unique name for the image
+            val imageName = UUID.randomUUID().toString()
             val imageRef = storage.reference.child("images/$imageName")
 
             val uploadTask = imageRef.putFile(uri)
@@ -77,9 +89,9 @@ class AddArtworkFragment : Fragment() {
             }.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUri = task.result
-                    val author = binding.author.text.toString()
-                    val description = binding.description.text.toString()
-                    // Once the image is uploaded, save the download URL along with other fields to Firestore
+                    val author = binding.textInputAuthor.text.toString()
+                    val description = binding.textInputDescription.text.toString()
+
                     saveArtworkToFirestore(author, description, downloadUri.toString())
                 } else {
                     // Handle errors
@@ -89,7 +101,7 @@ class AddArtworkFragment : Fragment() {
     }
 
     private fun saveArtworkToFirestore(author: String, description: String, imageUrl: String) {
-        // Implement saving to Firestore as shown in the previous example
+
         val artwork = ArtworkEntity(
             0,
             "123",
@@ -111,6 +123,38 @@ class AddArtworkFragment : Fragment() {
             ""
         )
         viewModel.addArtworkToFirestore(artwork)
+    }
+
+    private fun showDateRangePicker() {
+        val builder = MaterialDatePicker.Builder.dateRangePicker()
+
+        // Установка начальной и конечной даты по умолчанию (опционально)
+        val constraintsBuilder = Calendar.getInstance()
+        val startDate = constraintsBuilder.timeInMillis
+        constraintsBuilder.add(Calendar.MONTH, 1)
+        val endDate = constraintsBuilder.timeInMillis
+        builder.setTheme(com.google.android.material.R.style.ThemeOverlay_MaterialComponents_MaterialCalendar)
+        builder.setSelection(androidx.core.util.Pair(startDate, endDate))
+
+        val picker = builder.build()
+        picker.show(parentFragmentManager, picker.toString())
+
+        // Обработка выбора диапазона дат
+        picker.addOnPositiveButtonClickListener { selection ->
+
+            Log.d(
+                "AddArtworkFragment",
+                "${formatDate(selection.first)} - ${formatDate(selection.second)}"
+            )
+        }
+    }
+
+    private fun formatDate(milliseconds: Long): String {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = milliseconds
+        }
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        return dateFormat.format(calendar.time)
     }
 
     override fun onDestroyView() {

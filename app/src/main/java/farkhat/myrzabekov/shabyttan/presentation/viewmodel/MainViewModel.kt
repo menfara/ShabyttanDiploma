@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import farkhat.myrzabekov.shabyttan.data.local.entity.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.artwork.*
@@ -310,5 +312,9 @@ class MainViewModel @Inject constructor(
                 Log.e("YourViewModel", "Error getting artwork by ID", e)
             }
         }
+    }
+    fun isUserAuth(): Boolean {
+        val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
+        return currentUser != null
     }
 }
