@@ -18,17 +18,8 @@
             android:name="isLanguageRefresh"
             app:argType="boolean" />
         <action
-            android:id="@+id/action_profileFragment_to_addArtworkFragment"
-            app:destination="@id/addArtworkFragment" />
-        <action
-            android:id="@+id/action_profileFragment_to_discoverFragment"
-            app:destination="@id/discoverFragment" />
-        <action
             android:id="@+id/action_profileFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
-        <action
-            android:id="@+id/action_profileFragment_to_signInFragment"
-            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -69,6 +60,9 @@
         <action
             android:id="@+id/action_signUpFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
@@ -76,10 +70,15 @@
         android:label="fragment_sign_in"
         tools:layout="@layout/fragment_sign_in" >
         <action
-            android:id="@+id/action_signInFragment_to_signUpFragment"
-            app:destination="@id/signUpFragment" />
-        <action
             android:id="@+id/action_signInFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
 </navigation>

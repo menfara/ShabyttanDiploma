@@ -139,6 +139,26 @@
                 app:cornerRadius="15dp" />
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="17dp"
+            android:fontFamily="@font/montserrat_semibold"
+            android:gravity="center"
+            android:text="@string/have_account"
+            android:textColor="#8E8B8B"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/loginHereTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_semibold"
+            android:gravity="center"
+            android:text="Sign in here"
+            android:textColor="#ACACAC"
+            android:textSize="12sp" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -133,17 +133,17 @@
             android:layout_marginTop="17dp"
             android:fontFamily="@font/montserrat_semibold"
             android:gravity="center"
-            android:text="@string/dont_have_acc"
+            android:text="Forgot your password?"
             android:textColor="#8E8B8B"
             android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/registerHereTextView"
+            android:id="@+id/forgotPasswordTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_semibold"
             android:gravity="center"
-            android:text="Register Here"
+            android:text="Change here"
             android:textColor="#ACACAC"
             android:textSize="12sp" />
     </LinearLayout>

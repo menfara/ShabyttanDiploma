@@ -57,6 +57,11 @@ class SignUpFragment : Fragment() {
         binding.googleButton.setOnClickListener {
             signInWithGoogle()
         }
+
+        binding.loginHereTextView.setOnClickListener {
+            findNavController().navigate(R.id.action_signUpFragment_to_signInFragment)
+        }
+
     }
 
 

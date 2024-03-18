@@ -35,11 +35,11 @@ class SignInFragment : Fragment() {
             )
         }
 
-        binding.registerHereTextView.setOnClickListener {
-            findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
+
+
+        binding.forgotPasswordTextView.setOnClickListener {
+            findNavController().navigate(R.id.action_signInFragment_to_forgotPasswordFragment)
         }
-
-
     }
 
     private fun signInWithEmailAndPassword(email: String, password: String) {

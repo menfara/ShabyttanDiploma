@@ -68,7 +68,7 @@ class ProfileFragment : Fragment() {
 
         if (!viewModel.isUserAuth()) {
             Toast.makeText(requireContext(), "not auth", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.action_profileFragment_to_signInFragment)
+            findNavController().navigate(R.id.action_profileFragment_to_signUpFragment)
         }
 
         viewModel.getUserId()
@@ -133,12 +133,12 @@ class ProfileFragment : Fragment() {
         }
 
 
-        binding.logoutImageView.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-
-            viewModel.setUserId(-1)
-            recreateActivity()
-        }
+//        binding.logoutImageView.setOnClickListener {
+//            FirebaseAuth.getInstance().signOut()
+//
+//            viewModel.setUserId(-1)
+//            recreateActivity()
+//        }
 
 
         binding.bannerImageView.setOnClickListener {
