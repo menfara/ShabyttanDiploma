@@ -34,5 +34,16 @@
     <string name="password">Пароль</string>
     <string name="sign_in">SIGN IN</string>
     <string name="dont_have_acc">Нет аккаунта?</string>
+    <string name="for_you">Для вас</string>
+    <string name="events">Мероприятия</string>
+    <string name="discover">Найти</string>
+    <string name="posts">Посты</string>
+    <string name="change_language">Изменить язык</string>
+    <string name="notifications">Уведомления</string>
+    <string name="log_out">Выйти</string>
+    <string name="more">Больше</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="e_mail">Электронная почта</string>
+    <string name="account">Аккаунт</string>
 
 </resources>

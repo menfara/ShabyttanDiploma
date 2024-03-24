@@ -20,6 +20,12 @@
         <action
             android:id="@+id/action_profileFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_addArtworkFragment"
+            app:destination="@id/addArtworkFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -81,4 +87,8 @@
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.SettingsFragment"
+        android:label="SettingsFragment" />
 </navigation>

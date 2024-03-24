@@ -95,15 +95,15 @@ class ProfileFragment : Fragment() {
         viewPager.adapter = pagerAdapter
 
         pagerAdapter.addFragment(FavoritesFragment())
-        pagerAdapter.addFragment(SettingsFragment())
+//        pagerAdapter.addFragment(SettingsFragment())
 
 
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
             savedLanguage = language
             tabLayout.getTabAt(0)?.text =
-                requireContext().getStringInLocale(R.string.favorites, savedLanguage)
+                requireContext().getStringInLocale(R.string.posts, savedLanguage)
             tabLayout.getTabAt(1)?.text =
-                requireContext().getStringInLocale(R.string.settings, savedLanguage)
+                requireContext().getStringInLocale(R.string.favorites, savedLanguage)
         }
 
 
@@ -143,6 +143,14 @@ class ProfileFragment : Fragment() {
 
         binding.bannerImageView.setOnClickListener {
 
+        }
+
+        binding.settingsImageView.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
+        }
+
+        binding.addPostImageView.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_addArtworkFragment)
         }
 
     }

@@ -19,7 +19,7 @@ class ProfilePagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(act
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> FavoritesFragment()
-            1 -> SettingsFragment()
+            1 -> FavoritesFragment() // TODO: CREATE POSTS FRAGMENT AND REPLACE
             else -> throw IllegalStateException("Invalid position $position")
         }
     }

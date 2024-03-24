@@ -10,17 +10,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import com.google.android.material.datepicker.MaterialDatePicker
-import farkhat.myrzabekov.shabyttan.R
-import farkhat.myrzabekov.shabyttan.databinding.FragmentAddArtworkBinding
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
+import farkhat.myrzabekov.shabyttan.databinding.FragmentAddArtworkBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -40,9 +44,9 @@ class AddArtworkFragment : Fragment() {
     ): View {
         _binding = FragmentAddArtworkBinding.inflate(inflater, container, false)
 
-        binding.uploadImage.setOnClickListener {
-//            openImagePicker()
-            showDateRangePicker()
+        binding.postImageView.setOnClickListener {
+            openImagePicker()
+//            showDateRangePicker()
         }
 
         binding.submit.setOnClickListener {
@@ -68,6 +72,7 @@ class AddArtworkFragment : Fragment() {
                 val data: Intent? = result.data
                 data?.data?.let { uri ->
                     imageUri = uri
+                    binding.postImageView.setImageURI(imageUri)
                 }
             }
         }
@@ -76,54 +81,69 @@ class AddArtworkFragment : Fragment() {
         imageUri?.let { uri ->
             val imageName = UUID.randomUUID().toString()
             val imageRef = storage.reference.child("images/$imageName")
+            binding.progressBar.visibility = View.VISIBLE
 
-            val uploadTask = imageRef.putFile(uri)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val downloadUrl = uploadImage(uri, imageRef)
+                    val title = binding.titleEditText.text.toString()
+                    val description = binding.descriptionEditText.text.toString()
 
-            uploadTask.continueWithTask { task ->
-                if (!task.isSuccessful) {
-                    task.exception?.let {
-                        throw it
+                    // Возвращаемся на главный поток для обновления UI
+                    withContext(Dispatchers.Main) {
+                        saveArtworkToFirestore(title, description, downloadUrl)
                     }
-                }
-                imageRef.downloadUrl
-            }.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val downloadUri = task.result
-                    val author = binding.textInputAuthor.text.toString()
-                    val description = binding.textInputDescription.text.toString()
-
-                    saveArtworkToFirestore(author, description, downloadUri.toString())
-                } else {
-                    // Handle errors
+                } catch (e: Exception) {
+                    // Обработка ошибок загрузки изображения
+                    Log.e("AddArtworkFragment", "Failed to upload image: $e")
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                    }
                 }
             }
         }
     }
 
-    private fun saveArtworkToFirestore(author: String, description: String, imageUrl: String) {
-
-        val artwork = ArtworkEntity(
-            0,
-            "123",
-            "",
-            "",
-            author,
-            author,
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            description,
-            description,
-            "",
-            "",
-            imageUrl,
-            ""
-        )
-        viewModel.addArtworkToFirestore(artwork)
+    private suspend fun uploadImage(uri: Uri, imageRef: StorageReference): String {
+        return withContext(Dispatchers.IO) {
+            imageRef.putFile(uri).await() // Загружаем изображение
+            return@withContext imageRef.downloadUrl.await()
+                .toString() // Получаем URL загруженного изображения
+        }
     }
+
+    private fun saveArtworkToFirestore(title: String, description: String, imageUrl: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val artwork = ArtworkEntity(
+                    0,
+                    "123",
+                    title,
+                    title,
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    description,
+                    description,
+                    "",
+                    "",
+                    imageUrl,
+                    "24/03/2024"
+                )
+                viewModel.addArtworkToFirestore(artwork)
+            } catch (e: Exception) {
+                // Обработка ошибок сохранения данных в Firestore
+                Log.e("AddArtworkFragment", "Failed to save artwork to Firestore: $e")
+            }
+        }
+    }
+
 
     private fun showDateRangePicker() {
         val builder = MaterialDatePicker.Builder.dateRangePicker()

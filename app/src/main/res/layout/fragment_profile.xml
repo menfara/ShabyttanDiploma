@@ -65,7 +65,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Posts"
+            android:text="@string/posts"
             tools:layout_editor_absoluteX="-1dp"
             tools:layout_editor_absoluteY="215dp" />
 
@@ -88,7 +88,7 @@
 
 
     <ImageView
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/settingsImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -100,6 +100,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
+        android:id="@+id/addPostImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -107,6 +108,6 @@
         android:padding="8dp"
         android:src="@drawable/ic_plus"
         app:layout_constraintBottom_toBottomOf="@+id/bannerImageView"
-        app:layout_constraintEnd_toStartOf="@+id/floatingActionButton" />
+        app:layout_constraintEnd_toStartOf="@+id/settingsImageView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
