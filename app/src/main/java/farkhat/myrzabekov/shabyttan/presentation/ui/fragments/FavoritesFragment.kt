@@ -48,12 +48,9 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
         viewModel.getUserId()
         viewModel.getUserLanguage()
 
-        viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            userId?.let {
-                savedUserId = userId
-                viewModel.getArtworksLikedByUser(userId)
-            }
-        }
+
+        viewModel.getArtworksLikedByUser()
+
 
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
             Log.d(">>> YourFragment", "User language: $language")
@@ -99,7 +96,7 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
         }
     }
 
-    override fun onArtworkClick(artworkId: Long) {
+    override fun onArtworkClick(artworkId: String) {
         val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance(artworkId)
         bottomSheetFragment.show(childFragmentManager, "ArtworkBottomSheetTag")
     }

@@ -8,7 +8,11 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.ProfileFragment"

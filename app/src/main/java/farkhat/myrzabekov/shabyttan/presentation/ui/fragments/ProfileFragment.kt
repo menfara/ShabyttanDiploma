@@ -67,17 +67,12 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (!viewModel.isUserAuth()) {
-            Toast.makeText(requireContext(), "not auth", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_profileFragment_to_signUpFragment)
         }
 
-        viewModel.getUserId()
-        viewModel.userIdLiveData.observe(viewLifecycleOwner) { userId ->
-            if (userId != null) {
-                savedUserId = userId
-                viewModel.getArtworksLikedByUser(userId)
-            }
-        }
+
+        viewModel.getArtworksLikedByUser()
+
 
         viewModel.getUserLanguage()
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->

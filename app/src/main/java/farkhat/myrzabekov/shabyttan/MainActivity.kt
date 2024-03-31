@@ -1,6 +1,5 @@
 package farkhat.myrzabekov.shabyttan
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,12 +13,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
-import farkhat.myrzabekov.shabyttan.data.local.entity.UserEntity
 import farkhat.myrzabekov.shabyttan.databinding.ActivityMainBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.OnArtworkClickListener
 import farkhat.myrzabekov.shabyttan.presentation.ui.fragments.ArtworkBottomSheetFragment
@@ -46,7 +43,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 //        }
 
 
-        createArtworks()
+//        createArtworks()
 
 
 
@@ -91,7 +88,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
                 val id: String? = uri.lastPathSegment
                 Log.d(">>> ", "ID: $id")
                 if (id != null) {
-                    onArtworkClick(id.toLong())
+                    onArtworkClick(id)
                 }
             }
         }
@@ -438,7 +435,7 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
         }
     }
 
-    override fun onArtworkClick(artworkId: Long) {
+    override fun onArtworkClick(artworkId: String) {
         val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance(artworkId)
         bottomSheetFragment.show(supportFragmentManager, "ArtworkBottomSheetTag")
     }

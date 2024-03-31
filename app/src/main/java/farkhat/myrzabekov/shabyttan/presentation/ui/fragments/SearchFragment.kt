@@ -161,7 +161,7 @@ class SearchFragment : Fragment(), OnArtworkClickListener {
         _binding = null
     }
 
-    override fun onArtworkClick(artworkId: Long) {
+    override fun onArtworkClick(artworkId: String) {
         val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance(artworkId)
         bottomSheetFragment.show(childFragmentManager, "ArtworkBottomSheetTag")
     }

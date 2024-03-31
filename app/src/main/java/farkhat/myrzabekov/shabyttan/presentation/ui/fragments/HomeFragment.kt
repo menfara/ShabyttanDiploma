@@ -10,10 +10,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
@@ -119,7 +122,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateLikeButton() {
-        viewModel.checkArtworkInFavorites(savedUserId, todayArtwork.id)
+        viewModel.checkArtworkInFavorites(todayArtwork.firestoreId)
         viewModel.isArtworkInFavoritesStateFlow.asLiveData()
             .observe(viewLifecycleOwner) { isArtworkInFavorites ->
                 val likeButtonIcon =
@@ -130,14 +133,20 @@ class HomeFragment : Fragment() {
 
     private fun setupLikeButton() {
         binding.likeActionButton.setOnClickListener {
-            Log.d(">>> savedUserId", savedUserId.toString())
-            viewModel.handleUserFavorites(userId = savedUserId, artworkId = todayArtwork.id)
+            if (!viewModel.isUserAuth()) {
+                findNavController().navigate(R.id.action_homeFragment_to_signUpFragment)
+            } else {
+//                Log.d(">>> savedUserId", savedUserId.toString())
+                viewModel.toggleFavorite(todayArtwork.firestoreId)
+
+//                viewModel.handleUserFavorites(userId = savedUserId, artworkId = todayArtwork.id)
+            }
         }
     }
 
     private fun setupShareButton() {
         binding.shareActionButton.setOnClickListener {
-            uiHelper.shareArtworkDeepLink("https://farkhat.myrzabekov.shabyttan/artwork/${todayArtwork.id}")
+            uiHelper.shareArtworkDeepLink("https://farkhat.myrzabekov.shabyttan/artwork/${todayArtwork.firestoreId}")
         }
     }
 

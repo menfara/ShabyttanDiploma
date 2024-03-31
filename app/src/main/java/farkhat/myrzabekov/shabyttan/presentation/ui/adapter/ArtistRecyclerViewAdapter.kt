@@ -24,7 +24,7 @@ class ArtistRecyclerViewAdapter(
                 .placeholder(R.drawable.placeholder_image)
                 .into(binding.imageView)
             binding.root.setOnClickListener {
-                listener.onArtworkClick(artwork.id)
+                listener.onArtworkClick(artwork.firestoreId)
             }
         }
     }

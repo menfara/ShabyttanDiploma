@@ -25,7 +25,7 @@ class RecommendationRecyclerViewAdapter(
                 .into(binding.imageViewRecommended)
 
             binding.root.setOnClickListener {
-                listener.onArtworkClick(artwork.id)
+                listener.onArtworkClick(artwork.firestoreId)
             }
         }
     }

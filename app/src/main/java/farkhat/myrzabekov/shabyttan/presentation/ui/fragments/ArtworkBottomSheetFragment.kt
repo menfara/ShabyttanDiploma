@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -98,7 +99,7 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun updateLikeButton() {
-        todayArtwork?.let { viewModel.checkArtworkInFavorites(savedUserId, it.id) }
+        todayArtwork?.let { viewModel.checkArtworkInFavorites(it.firestoreId) }
         viewModel.isArtworkInFavoritesStateFlow.asLiveData()
             .observe(viewLifecycleOwner) { isArtworkInFavorites ->
                 val likeButtonIcon =
@@ -109,18 +110,18 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
 
     private fun setupLikeButton() {
         binding.likeActionButton.setOnClickListener {
-            todayArtwork?.let { it1 ->
-                viewModel.handleUserFavorites(
-                    userId = savedUserId,
-                    artworkId = it1.id
-                )
+            if (!viewModel.isUserAuth()) {
+                findNavController().navigate(R.id.action_homeFragment_to_signUpFragment)
+            } else {
+//                Log.d(">>> savedUserId", savedUserId.toString())
+                todayArtwork?.let { it1 -> viewModel.toggleFavorite(it1.firestoreId) }
             }
         }
     }
 
     private fun setupShareButton() {
         binding.shareActionButton.setOnClickListener {
-            uiHelper.shareArtworkDeepLink("https://farkhat.myrzabekov.shabyttan/artwork/${todayArtwork?.id}")
+            uiHelper.shareArtworkDeepLink("https://farkhat.myrzabekov.shabyttan/artwork/${todayArtwork?.firestoreId}")
         }
     }
 

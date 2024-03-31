@@ -4,15 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.marginStart
-import androidx.core.view.marginTop
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
-import farkhat.myrzabekov.shabyttan.databinding.FragmentSearchResultsBinding
 import farkhat.myrzabekov.shabyttan.databinding.ItemSearchResultBinding
 
 class SearchResultRecyclerViewAdapter(
@@ -57,7 +53,7 @@ class SearchResultRecyclerViewAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            onArtworkClickListener.onArtworkClick(item.id)
+            onArtworkClickListener.onArtworkClick(item.firestoreId)
         }
     }
 

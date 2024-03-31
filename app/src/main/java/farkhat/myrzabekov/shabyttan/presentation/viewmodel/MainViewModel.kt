@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import farkhat.myrzabekov.shabyttan.data.local.entity.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.artwork.*
@@ -14,9 +15,12 @@ import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.AddArtworkFir
 import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.GetArtworkByIdFirestoreUseCase
 import farkhat.myrzabekov.shabyttan.presentation.usecase.user.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.user.favorites.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,6 +51,12 @@ class MainViewModel @Inject constructor(
     private val getArtworkByIdFirestoreUseCase: GetArtworkByIdFirestoreUseCase,
 
     ) : ViewModel() {
+
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val favoritesCollection = firestore.collection("favorites")
+    private val artworksCollection = firestore.collection("artworks")
+
 
     private val _userData = MutableLiveData<UserEntity?>()
     val userData: LiveData<UserEntity?> get() = _userData
@@ -105,6 +115,11 @@ class MainViewModel @Inject constructor(
     private val _artworkLiveData = MutableLiveData<ArtworkEntity?>()
     val artworkLiveData: LiveData<ArtworkEntity?> = _artworkLiveData
 
+
+    init {
+        observeFavoritesChanges()
+    }
+
     fun createUser(user: UserEntity) {
         viewModelScope.launch {
             createUserUseCase(user)
@@ -140,8 +155,20 @@ class MainViewModel @Inject constructor(
 
     fun getArtworkByViewDate(viewDate: String) {
         viewModelScope.launch {
-            val artwork = getArtworkByViewDateUseCase()
-            _todayArtworkLiveData.postValue(artwork)
+            artworksCollection
+                .orderBy("viewDate", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val document = querySnapshot.documents[0]
+                    val artworkEntity = document.toObject(ArtworkEntity::class.java)
+                    artworkEntity?.firestoreId = document.id
+                    _todayArtworkLiveData.postValue(artworkEntity)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FavoritesViewModel", "Error getArtworkByViewDate", e)
+                }
+
         }
     }
 
@@ -165,10 +192,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun checkArtworkInFavorites(userId: Long, artworkId: Long) {
+    fun checkArtworkInFavorites(artworkId: String) {
         viewModelScope.launch {
-            val isArtworkInFavorites = checkArtworkInFavoritesUseCase(userId, artworkId)
-            _isArtworkInFavoritesStateFlow.value = isArtworkInFavorites
+            try {
+                val favoriteQuery = favoritesCollection
+                    .whereEqualTo("uid", auth.currentUser?.uid)
+                    .whereEqualTo("artworkId", artworkId.toString())
+                    .get()
+                    .await()
+
+                val isArtworkInFavorites = !favoriteQuery.isEmpty
+                _isArtworkInFavoritesStateFlow.value = isArtworkInFavorites
+            } catch (e: Exception) {
+                Log.e("FavoritesViewModel", "Error checking artwork in favorites", e)
+            }
         }
     }
 
@@ -178,12 +215,6 @@ class MainViewModel @Inject constructor(
             val isArtworkInFavorites =
                 checkArtworkInFavoritesUseCase(userId, artworkId)
             _isArtworkInFavoritesStateFlow.value = !isArtworkInFavorites
-
-//            val userFavorites = getUserFavoritesUseCase(userId)
-//            _userFavoritesData.postValue(userFavorites)
-//
-//            Log.d(">>> UserFavorites", userFavorites.toString())
-//            Log.d(">>> isArtworkInFavorites", isArtworkInFavorites.toString())
 
             if (isArtworkInFavorites) {
                 removeFromUserFavoritesUseCase(userId, artworkId)
@@ -198,13 +229,95 @@ class MainViewModel @Inject constructor(
         }
     }
 
-
-    fun getArtworksLikedByUser(userId: Long) {
+    fun toggleFavorite(artworkId: String) {
         viewModelScope.launch {
-            artworksLikedByUserUseCase(userId).collect { artworksLikedByUser ->
-                _artworksLikedByUserData.value = artworksLikedByUser
+            _isArtworkInFavoritesStateFlow.value = !_isArtworkInFavoritesStateFlow.value
+            val currentUser = auth.currentUser ?: return@launch
+            val uid = currentUser.uid
+            val favoriteQuery = favoritesCollection
+                .whereEqualTo("uid", uid)
+                .whereEqualTo("artworkId", artworkId)
+
+            try {
+                val querySnapshot = favoriteQuery.get().await()
+
+                if (querySnapshot.isEmpty) {
+                    val addResult =
+                        favoritesCollection.add(mapOf("uid" to uid, "artworkId" to artworkId))
+                            .await()
+                    Log.d("FavoritesViewModel", "Successfully added favorite: $addResult")
+                } else {
+                    querySnapshot.documents.forEach { document ->
+                        val deleteResult = document.reference.delete().await()
+                        Log.d("FavoritesViewModel", "Successfully deleted favorite: $deleteResult")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("FavoritesViewModel", "Error toggling favorite", e)
             }
         }
+    }
+
+
+    fun getArtworksLikedByUser() {
+        viewModelScope.launch {
+            val userId = auth.currentUser?.uid ?: return@launch
+
+            try {
+                val favoriteQuery = favoritesCollection.whereEqualTo("uid", userId).get().await()
+                val artworkIds = favoriteQuery.documents.mapNotNull { it.getString("artworkId") }
+                val artworks = mutableListOf<ArtworkEntity>()
+
+                for (artworkId in artworkIds) {
+                    val artworkDocument = artworksCollection.document(artworkId).get().await()
+                    artworkDocument.toObject(ArtworkEntity::class.java)?.let { artworks.add(it) }
+                }
+
+                _artworksLikedByUserData.value = artworks
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    private fun observeFavoritesChanges() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userId = auth.currentUser?.uid ?: return@launch
+
+            favoritesCollection.whereEqualTo("uid", userId).addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    return@addSnapshotListener
+                }
+
+                val artworkIds =
+                    snapshot?.documents?.mapNotNull { it.getString("artworkId") } ?: emptyList()
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    loadArtworks(artworkIds)
+                }
+            }
+        }
+    }
+
+
+    private suspend fun loadArtworks(artworkIds: List<String>) {
+        val artworks = mutableListOf<ArtworkEntity>()
+
+        for (artworkId in artworkIds) {
+            try {
+                val artworkDocument = artworksCollection.document(artworkId).get().await()
+                val artworkEntity = artworkDocument.toObject(ArtworkEntity::class.java)
+                artworkEntity?.let { artworks.add(it) }
+            } catch (e: Exception) {
+                // Обработка ошибок, если что-то пошло не так при загрузке данных об искусстве
+                e.printStackTrace()
+            }
+        }
+
+        // Обновляем StateFlow с полученными данными об искусстве
+        _artworksLikedByUserData.value = artworks
     }
 
     fun getArtworksByCreator(creator: String) {
@@ -277,6 +390,7 @@ class MainViewModel @Inject constructor(
             _userEmailLiveData.value = email
         }
     }
+
     fun getUserUsername() {
         viewModelScope.launch {
             val username = getUserUsername.invoke()
@@ -302,6 +416,7 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
     fun getArtworkByIdFirestore(artworkId: String) {
         viewModelScope.launch {
             try {
@@ -313,6 +428,7 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
     fun isUserAuth(): Boolean {
         val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
         return currentUser != null

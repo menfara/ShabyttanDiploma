@@ -10,7 +10,7 @@ import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
 
 interface OnArtworkClickListener {
-    fun onArtworkClick(artworkId: Long)
+    fun onArtworkClick(artworkId: String)
 }
 
 class HistoryRecyclerViewAdapter(
@@ -44,7 +44,7 @@ class HistoryRecyclerViewAdapter(
                     .into(imageViewHistory)
 
                 binding.root.setOnClickListener {
-                    listener.onArtworkClick(artwork.id)
+                    listener.onArtworkClick(artwork.firestoreId)
                 }
             }
         }
