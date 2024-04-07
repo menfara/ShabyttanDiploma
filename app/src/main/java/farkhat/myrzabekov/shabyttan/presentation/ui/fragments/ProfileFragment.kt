@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -27,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentProfileBinding
+import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.AdminProfilePagerAdapter
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.ProfilePagerAdapter
 import farkhat.myrzabekov.shabyttan.presentation.ui.getStringInLocale
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
@@ -45,7 +47,9 @@ class ProfileFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: ProfilePagerAdapter
+    private lateinit var pagerAdminAdapter: AdminProfilePagerAdapter
     private lateinit var tabLayout: TabLayout
+    private var isAdmin = false
 
     private var isLanguageSet: Boolean = false
     private lateinit var sharedPreferences: SharedPreferences
@@ -59,6 +63,7 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
@@ -66,9 +71,43 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        val args = arguments
+        if (args != null) {
+            isAdmin = args.getBoolean("isAdmin", false)
+        }
+
+
         if (!viewModel.isUserAuth()) {
             findNavController().navigate(R.id.action_profileFragment_to_signUpFragment)
         }
+
+
+        tabLayout = binding.tabLayout
+        viewPager = binding.viewPager
+
+        if (isAdmin) {
+            pagerAdminAdapter = AdminProfilePagerAdapter(requireActivity())
+            viewPager.adapter = pagerAdminAdapter
+        } else {
+            pagerAdapter = ProfilePagerAdapter(requireActivity())
+            viewPager.adapter = pagerAdapter
+        }
+
+        TabLayoutMediator(tabLayout, viewPager) { _, _ -> }.attach()
+
+        tabLayout.getTabAt(0)?.text =
+            requireContext().getStringInLocale(
+                if (isAdmin) R.string.events else R.string.posts,
+                savedLanguage
+            )
+        tabLayout.getTabAt(1)?.text =
+            requireContext().getStringInLocale(
+                if (isAdmin) R.string.history else R.string.favorites,
+                savedLanguage
+            )
+
+
 
 
         viewModel.getArtworksLikedByUser()
@@ -78,32 +117,35 @@ class ProfileFragment : Fragment() {
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
             Log.d(">>> YourFragment", "User language: $language")
             savedLanguage = language
+            tabLayout.getTabAt(0)?.text =
+                requireContext().getStringInLocale(
+                    if (isAdmin) R.string.events else R.string.posts,
+                    savedLanguage
+                )
+            tabLayout.getTabAt(1)?.text =
+                requireContext().getStringInLocale(
+                    if (isAdmin) R.string.history else R.string.favorites,
+                    savedLanguage
+                )
         }
 
 
         setupObservers()
         setupRecyclerView()
 
-
-        viewPager = binding.viewPager
-        pagerAdapter = ProfilePagerAdapter(requireActivity())
-        viewPager.adapter = pagerAdapter
-
-        pagerAdapter.addFragment(FavoritesFragment())
-//        pagerAdapter.addFragment(SettingsFragment())
-
-
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
             savedLanguage = language
             tabLayout.getTabAt(0)?.text =
-                requireContext().getStringInLocale(R.string.posts, savedLanguage)
+                requireContext().getStringInLocale(
+                    if (isAdmin) R.string.events else R.string.posts,
+                    savedLanguage
+                )
             tabLayout.getTabAt(1)?.text =
-                requireContext().getStringInLocale(R.string.favorites, savedLanguage)
+                requireContext().getStringInLocale(
+                    if (isAdmin) R.string.history else R.string.favorites,
+                    savedLanguage
+                )
         }
-
-
-        tabLayout = binding.tabLayout
-        TabLayoutMediator(tabLayout, viewPager) { _, _ -> }.attach()
 
 
         val isLanguageSet = sharedPreferences.getBoolean("IS_LANGUAGE_SET", false)

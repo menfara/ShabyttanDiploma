@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import farkhat.myrzabekov.shabyttan.data.local.entity.*
+import farkhat.myrzabekov.shabyttan.data.remote.model.Event
 import farkhat.myrzabekov.shabyttan.presentation.usecase.artwork.*
 import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.AddArtworkFirestoreUseCase
 import farkhat.myrzabekov.shabyttan.presentation.usecase.firestore.GetArtworkByIdFirestoreUseCase
@@ -417,14 +418,24 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    suspend fun addEventToFirestore(event: Event) {
+        val eventsCollection = firestore.collection("events")
+
+        try {
+            eventsCollection.add(event).await()
+
+        } catch (e: Exception) {
+            Log.e("MainViewModel", "Error adding event to Firestore: ${e.message}")
+        }
+    }
+
     fun getArtworkByIdFirestore(artworkId: String) {
         viewModelScope.launch {
             try {
                 val artwork = getArtworkByIdFirestoreUseCase(artworkId)
                 _artworkLiveData.value = artwork
             } catch (e: Exception) {
-                // Handle error
-                Log.e("YourViewModel", "Error getting artwork by ID", e)
+                Log.e("MainViewModel", "Error getting artwork by ID", e)
             }
         }
     }
@@ -432,5 +443,20 @@ class MainViewModel @Inject constructor(
     fun isUserAuth(): Boolean {
         val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
         return currentUser != null
+    }
+    val isAdminLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    fun checkIfUserIsAdmin() {
+        viewModelScope.launch {
+            val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
+
+            if (currentUser != null) {
+                val adminCollection = firestore.collection("admins")
+                val querySnapshot =
+                    adminCollection.whereEqualTo("userId", currentUser.uid).get().await()
+                isAdminLiveData.postValue(!querySnapshot.isEmpty)
+            } else {
+                isAdminLiveData.postValue(false)
+            }
+        }
     }
 }

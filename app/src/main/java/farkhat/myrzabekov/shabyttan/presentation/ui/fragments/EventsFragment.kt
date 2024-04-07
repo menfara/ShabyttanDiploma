@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.data.remote.model.Event
 import farkhat.myrzabekov.shabyttan.databinding.FragmentEventsBinding
@@ -23,6 +25,7 @@ class EventsFragment : Fragment() {
     private var lastVisibleDocument: DocumentSnapshot? = null
     private var stop = false
     private var isLoading = false
+    private var isAdmin = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,6 +36,12 @@ class EventsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val args = arguments
+        if (args != null) {
+            isAdmin = args.getBoolean("isAdmin", false)
+            Log.d("EVENTS FRAGMENT >>> ", isAdmin.toString())
+        }
 
         eventAdapter = EventAdapter()
 
@@ -84,10 +93,13 @@ class EventsFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
 
         val eventsCollection = db.collection("events")
+        val currentUser = Firebase.auth.currentUser
 
         var query = eventsCollection
-//            .orderBy("id")
             .limit(10)
+
+        if (isAdmin) query = query.whereEqualTo("creator", currentUser?.uid)
+
 
         lastVisibleDocument?.let {
             query = query.startAfter(it)

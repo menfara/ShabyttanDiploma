@@ -102,14 +102,23 @@ class MainActivity : AppCompatActivity(), OnArtworkClickListener {
 
 
 
-
         val inflater = navHostFragment.navController.navInflater
         val graph = inflater.inflate(R.navigation.nav_graph)
 
 
         binding.bottomnavigation.setupWithNavController(navController)
-        graph.setStartDestination(R.id.homeFragment)
+        val args = Bundle().apply {
+            putBoolean("isAdmin", true)
+        }
 
+        binding.bottomnavigation.setOnItemSelectedListener { item ->
+            if (item.itemId == R.id.profileFragment) {
+                navController.navigate(item.itemId, args)
+            } else {
+                navController.navigate(item.itemId)
+            }
+            true
+        }
 
 //        else {
 //            binding.bottomnavigation.visibility = View.GONE
