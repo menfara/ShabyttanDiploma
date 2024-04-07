@@ -47,6 +47,7 @@ class SignInFragment : Fragment() {
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, navigate to the next screen or perform any other action
+                    recreateActivity()
                     findNavController().navigate(R.id.action_signInFragment_to_profileFragment)
                 } else {
                     // If sign in fails, display a message to the user.
@@ -55,6 +56,12 @@ class SignInFragment : Fragment() {
                     // Toast.makeText(requireContext(), "Authentication failed.", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun recreateActivity() {
+        val intent = requireActivity().intent
+        requireActivity().finish()
+        startActivity(intent)
     }
 
     override fun onDestroyView() {

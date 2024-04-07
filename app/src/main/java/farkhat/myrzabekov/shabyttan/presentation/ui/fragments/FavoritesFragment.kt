@@ -28,17 +28,24 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
     private var savedLanguage: String = "en"
     private var savedUserId: Long = -1
     private val viewModel: MainViewModel by viewModels()
-
+    private var isPosts = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
+        val args = arguments
+        if (args != null) {
+            isPosts = args.getBoolean("post", false)
+        }
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
         setupObservers()
         animateImageView(binding.emptyImageView)
@@ -48,8 +55,10 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
         viewModel.getUserId()
         viewModel.getUserLanguage()
 
-
-        viewModel.getArtworksLikedByUser()
+        if (!isPosts)
+            viewModel.getArtworksLikedByUser()
+        else
+            viewModel.getPostsByUser()
 
 
         viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
@@ -69,6 +78,7 @@ class FavoritesFragment : Fragment(), OnArtworkClickListener {
                 binding.historyRecyclerView.adapter =
                     HistoryRecyclerViewAdapter(userFavorites, this, savedLanguage)
             }
+
     }
 
     private fun updateUIVisibility(hasFavorites: Boolean) {

@@ -187,8 +187,12 @@ class ProfileFragment : Fragment() {
         }
 
         binding.addPostImageView.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_addArtworkFragment)
+            if (!isAdmin)
+                findNavController().navigate(R.id.action_profileFragment_to_addArtworkFragment)
+            else
+                findNavController().navigate(R.id.action_profileFragment_to_addEventFragment)
         }
+
 
     }
 

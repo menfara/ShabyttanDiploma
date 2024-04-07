@@ -281,6 +281,26 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun getPostsByUser() {
+        viewModelScope.launch {
+            val userId = auth.currentUser?.uid ?: return@launch
+
+            try {
+                val favoriteQuery = artworksCollection.whereEqualTo("ownerId", userId).get().await()
+
+                val artworksList = mutableListOf<ArtworkEntity>()
+                for (document in favoriteQuery.documents) {
+                    val artwork = document.toObject(ArtworkEntity::class.java)
+                    artwork?.let { artworksList.add(it) }
+                }
+
+                _artworksLikedByUserData.value = artworksList
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 
     private fun observeFavoritesChanges() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -418,14 +438,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    suspend fun addEventToFirestore(event: Event) {
-        val eventsCollection = firestore.collection("events")
-
-        try {
-            eventsCollection.add(event).await()
-
-        } catch (e: Exception) {
-            Log.e("MainViewModel", "Error adding event to Firestore: ${e.message}")
+    fun addEventToFirestore(event: Event) {
+        viewModelScope.launch {
+            val eventsCollection = firestore.collection("events")
+            event.creator = auth.currentUser?.uid ?: ""
+            eventsCollection.add(event)
         }
     }
 
@@ -444,6 +461,7 @@ class MainViewModel @Inject constructor(
         val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
         return currentUser != null
     }
+
     val isAdminLiveData: MutableLiveData<Boolean> = MutableLiveData()
     fun checkIfUserIsAdmin() {
         viewModelScope.launch {

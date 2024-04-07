@@ -29,7 +29,9 @@ class ArtworkEntity(
     val didYouKnowRu: String,
 
     val imageUrl: String,
-    var viewDate: String? = null
+    var viewDate: String? = null,
+
+    var ownerId: String
 ) {
     constructor() : this(
         id = 0,
@@ -44,6 +46,7 @@ class ArtworkEntity(
         descriptionRu = "",
         didYouKnow = "",
         didYouKnowRu = "",
-        imageUrl = ""
+        imageUrl = "",
+        ownerId = "",
     )
 }

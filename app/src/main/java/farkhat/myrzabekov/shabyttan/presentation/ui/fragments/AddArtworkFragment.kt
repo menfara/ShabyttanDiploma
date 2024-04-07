@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.firebase.auth.FirebaseAuth
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
@@ -114,33 +115,32 @@ class AddArtworkFragment : Fragment() {
     }
 
     private fun saveArtworkToFirestore(title: String, description: String, imageUrl: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val artwork = ArtworkEntity(
-                    0,
-                    "123",
-                    title,
-                    title,
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    description,
-                    description,
-                    "",
-                    "",
-                    imageUrl,
-                    "24/03/2024"
-                )
-                viewModel.addArtworkToFirestore(artwork)
-            } catch (e: Exception) {
-                // Обработка ошибок сохранения данных в Firestore
-                Log.e("AddArtworkFragment", "Failed to save artwork to Firestore: $e")
-            }
+        try {
+            val artwork = ArtworkEntity(
+                0,
+                "123",
+                title,
+                title,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                description,
+                description,
+                "",
+                "",
+                imageUrl,
+                "24/03/2024",
+                ownerId = FirebaseAuth.getInstance().currentUser?.uid.toString()
+            )
+            viewModel.addArtworkToFirestore(artwork)
+        } catch (e: Exception) {
+            // Обработка ошибок сохранения данных в Firestore
+            Log.e("AddArtworkFragment", "Failed to save artwork to Firestore: $e")
         }
     }
 

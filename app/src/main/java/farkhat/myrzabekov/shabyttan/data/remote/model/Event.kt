@@ -6,5 +6,8 @@ data class Event(
     val location: String,
     val imageUrl: String,
     val description: String,
-    val isFree: Boolean
-)
+    val free: Boolean,
+    var creator: String,
+){
+    constructor() : this("", "", "", "", "", false, "")
+}

@@ -16,9 +16,10 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.data.remote.model.Event
 import farkhat.myrzabekov.shabyttan.databinding.FragmentEventsBinding
+import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.OnArtworkClickListener
 
 @AndroidEntryPoint
-class EventsFragment : Fragment() {
+class EventsFragment : Fragment(), OnArtworkClickListener {
     private var _binding: FragmentEventsBinding? = null
     private val binding get() = _binding!!
     private lateinit var eventAdapter: EventAdapter
@@ -43,7 +44,7 @@ class EventsFragment : Fragment() {
             Log.d("EVENTS FRAGMENT >>> ", isAdmin.toString())
         }
 
-        eventAdapter = EventAdapter()
+        eventAdapter = EventAdapter(this)
 
         binding.recyclerViewEvents.apply {
             layoutManager =
@@ -114,9 +115,10 @@ class EventsFragment : Fragment() {
                     val location = document.getString("location") ?: ""
                     val imageUrl = document.getString("imageUrl") ?: ""
                     val description = document.getString("description") ?: ""
-                    val isFree = document.getBoolean("isFree") ?: false
+                    val isFree = document.getBoolean("free") ?: false
+                    val creator = document.getString("creator") ?: ""
 
-                    val event = Event(id, title, location, imageUrl, description, isFree)
+                    val event = Event(id, title, location, imageUrl, description, isFree, creator)
                     eventsList.add(event)
                 }
                 callback(
@@ -128,6 +130,11 @@ class EventsFragment : Fragment() {
                 Log.e("EventsFragment", "Error getting documents: ", exception)
                 callback(emptyList(), null)
             }
+    }
+
+    override fun onArtworkClick(artworkId: String) {
+        val bottomSheetFragment = ArtworkBottomSheetFragment.newInstance("-$artworkId")
+        bottomSheetFragment.show(childFragmentManager, "ArtworkBottomSheetTag")
     }
 
 }

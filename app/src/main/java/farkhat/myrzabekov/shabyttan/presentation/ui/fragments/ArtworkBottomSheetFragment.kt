@@ -1,18 +1,23 @@
 package farkhat.myrzabekov.shabyttan.presentation.ui.fragments
 
+
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
+import farkhat.myrzabekov.shabyttan.data.remote.model.Event
 import farkhat.myrzabekov.shabyttan.databinding.DialogFullScreenImageBinding
 import farkhat.myrzabekov.shabyttan.databinding.FragmentArtworkBottomSheetBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.UIHelper
@@ -38,13 +43,41 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         expandBottomSheetDialog()
 
         arguments?.getLong("artworkId")?.let { viewModel.getArtworkById(it) }
-        arguments?.getString("artworkIdFirestore")?.let { viewModel.getArtworkByIdFirestore(it) }
+        arguments?.getString("artworkIdFirestore")?.let {
+            if(it.startsWith("-")) {
+                val firestore = FirebaseFirestore.getInstance()
+                val eventsCollection = firestore.collection("events")
+                eventsCollection.document(it.substring(1))
+                    .get()
+                    .addOnSuccessListener { documentSnapshot ->
+                        if (documentSnapshot.exists()) {
+                            val event = documentSnapshot.toObject(Event::class.java)
+                            with(binding) {
+                                if (event != null) {
+                                    artTitle.text = event.title
+                                    uiHelper.loadImage(artImage, event.imageUrl)
+
+//                                    artAuthor.text = authorToShow.orEmpty()
+                                    artDescription.text = event.description
+//                                    artFunFact.text = didYouKnowToShow.orEmpty()
+                                }
+                            }
+                        }
+                    }
+            }
+            else
+            viewModel.getArtworkByIdFirestore(it)
+        }
+
+
+
 
         viewModel.artworkByIdLiveData.observe(viewLifecycleOwner) { artwork ->
             artwork?.let {
@@ -163,5 +196,7 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
                 }
             }
         }
+
+
     }
 }

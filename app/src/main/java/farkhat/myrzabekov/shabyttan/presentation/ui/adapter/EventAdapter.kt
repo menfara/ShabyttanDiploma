@@ -7,11 +7,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.data.remote.model.Event
 import farkhat.myrzabekov.shabyttan.databinding.ItemEventBinding
 
-class EventAdapter : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiffCallback()) {
+class EventAdapter(
+    private val listener: OnArtworkClickListener,
+) : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
         val binding = ItemEventBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -22,19 +23,24 @@ class EventAdapter : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiffC
         holder.bind(getItem(position))
     }
 
-    class EventViewHolder(private val binding: ItemEventBinding) :
+    inner class EventViewHolder(private val binding: ItemEventBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Event) {
             binding.apply {
                 Log.d("EventAdapter", event.title)
                 titleTextView.text = event.title
                 locationTextView.text = event.location
-                freeTextView.text = if (event.isFree) "Free" else "Paid"
+                freeTextView.text = if (event.free) "Free" else "Paid"
 
                 Glide.with(itemView)
                     .load(event.imageUrl)
 //                    .placeholder(R.drawable.placeholder_image)
                     .into(imageView)
+
+
+                binding.root.setOnClickListener {
+                    listener.onArtworkClick(event.id)
+                }
             }
         }
     }

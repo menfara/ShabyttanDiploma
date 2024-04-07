@@ -12,13 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import farkhat.myrzabekov.shabyttan.R
-import farkhat.myrzabekov.shabyttan.data.local.entity.ArtworkEntity
 import farkhat.myrzabekov.shabyttan.data.remote.model.Event
-import farkhat.myrzabekov.shabyttan.databinding.FragmentAddArtworkBinding
 import farkhat.myrzabekov.shabyttan.databinding.FragmentAddEventBinding
 import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -86,10 +85,18 @@ class AddEventFragment : Fragment() {
                     val downloadUrl = uploadImage(uri, imageRef)
                     val title = binding.titleEditText.text.toString()
                     val description = binding.descriptionEditText.text.toString()
+                    val isFree = binding.isFreeCheckBox.isChecked
+                    val location = binding.locationEditText.text.toString()
 
 
                     withContext(Dispatchers.Main) {
-                        saveArtworkToFirestore(title, description, downloadUrl)
+                        saveArtworkToFirestore(
+                            title = title,
+                            description = description,
+                            imageUrl = downloadUrl,
+                            isFree = isFree,
+                            location = location
+                        )
                     }
                 } catch (e: Exception) {
 
@@ -111,24 +118,38 @@ class AddEventFragment : Fragment() {
         }
     }
 
-    private fun saveArtworkToFirestore(title: String, description: String, imageUrl: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val event = Event(
-                    "123",
-                    title,
-                    "location",
-                    imageUrl,
-                    description,
-                    true,
-                )
-                viewModel.addEventToFirestore(event)
-            } catch (e: Exception) {
-                Log.e("AddArtworkFragment", "Failed to save artwork to Firestore: $e")
-            }
-        }
-    }
+    private fun saveArtworkToFirestore(
+        title: String,
+        location: String,
+        description: String,
+        imageUrl: String,
+        isFree: Boolean
+    ) {
 
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val auth = FirebaseAuth.getInstance()
+            val uid = auth.currentUser?.uid
+
+
+            val event = Event(
+                id = "123",
+                title = title,
+                location = location,
+                imageUrl = imageUrl,
+                description = description,
+                free = isFree,
+                creator = uid.toString(),
+            )
+
+            val firestore = FirebaseFirestore.getInstance()
+
+            firestore.collection("events")
+                .add(event)
+        }
+
+
+    }
 
 
 }

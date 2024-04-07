@@ -34,6 +34,9 @@
             android:name="isAdmin"
             app:argType="boolean"
             android:defaultValue="false" />
+        <action
+            android:id="@+id/action_profileFragment_to_addEventFragment"
+            app:destination="@id/addEventFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -99,4 +102,9 @@
         android:id="@+id/settingsFragment"
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.SettingsFragment"
         android:label="SettingsFragment" />
+    <fragment
+        android:id="@+id/addEventFragment"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.AddEventFragment"
+        android:label="fragment_add_event"
+        tools:layout="@layout/fragment_add_event" />
 </navigation>
