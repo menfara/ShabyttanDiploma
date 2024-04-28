@@ -19,7 +19,6 @@ import farkhat.myrzabekov.shabyttan.presentation.usecase.user.favorites.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -259,6 +258,65 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun addToSavedEvents(eventId: String) {
+        viewModelScope.launch {
+            try {
+                val eventData = hashMapOf(
+                    "eventId" to eventId,
+                    "userId" to auth.currentUser?.uid
+                )
+
+                firestore.collection("savedEvents")
+                    .add(eventData)
+                    .await()
+            } catch (e: Exception) {
+                Log.e(
+                    ">>> FavoritesViewModel",
+                    "Error adding event to saved events: ${e.message}",
+                    e
+                )
+            }
+        }
+    }
+
+    private val _eventsIdListLiveData = MutableLiveData<List<String>>()
+    val eventsIdListLiveData: LiveData<List<String>> = _eventsIdListLiveData
+
+    fun fetchEventsIdList() {
+        viewModelScope.launch {
+            val eventsIdList = getEventsIdListFromFirestore()
+            _eventsIdListLiveData.postValue(eventsIdList)
+        }
+    }
+
+    private suspend fun getEventsIdListFromFirestore(): List<String> {
+        val db = FirebaseFirestore.getInstance()
+        val eventsCollection = db.collection("savedEvents")
+        val currentUser =
+            auth.currentUser ?: return emptyList()
+
+        return try {
+            val querySnapshot = eventsCollection
+                .whereEqualTo("userId", currentUser.uid)
+                .get()
+                .await()
+
+            val eventsIdList = mutableListOf<String>()
+
+            for (document in querySnapshot.documents) {
+                val eventId = document.getString("eventId")
+                eventId?.let {
+                    eventsIdList.add(it)
+                }
+            }
+
+            eventsIdList
+        } catch (e: Exception) {
+            Log.e("YourViewModel", "Error fetching events id list: ${e.message}", e)
+            emptyList()
+        }
+    }
+
 
     fun getArtworksLikedByUser() {
         viewModelScope.launch {
@@ -354,6 +412,35 @@ class MainViewModel @Inject constructor(
             _searchArtworksData.postValue(searchResults)
         }
     }
+
+    fun searchArtworksFirebase(keyword: String) {
+        viewModelScope.launch {
+            try {
+                val querySnapshot = artworksCollection
+                    .whereEqualTo("title", keyword)
+                    .get()
+                    .await()
+
+                val searchResults = mutableListOf<ArtworkEntity>()
+                for (document in querySnapshot.documents) {
+                    val artwork = document.toObject(ArtworkEntity::class.java)
+                    artwork?.let {
+                        searchResults.add(it)
+                    }
+                }
+
+                _searchArtworksData.postValue(searchResults)
+
+            } catch (e: Exception) {
+                Log.e(
+                    ">>> viewmodel artwork searching",
+                    "Error searching artworks: ${e.message}",
+                    e
+                )
+            }
+        }
+    }
+
 
     fun getUserId() {
         viewModelScope.launch {

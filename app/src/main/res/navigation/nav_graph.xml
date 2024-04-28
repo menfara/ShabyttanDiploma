@@ -101,10 +101,19 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="SettingsFragment" >
+        <action
+            android:id="@+id/action_settingsFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addEventFragment"
         android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.AddEventFragment"
         android:label="fragment_add_event"
         tools:layout="@layout/fragment_add_event" />
+    <fragment
+        android:id="@+id/eventsFragment"
+        android:name="farkhat.myrzabekov.shabyttan.presentation.ui.fragments.EventsFragment"
+        android:label="fragment_events"
+        tools:layout="@layout/fragment_events" />
 </navigation>

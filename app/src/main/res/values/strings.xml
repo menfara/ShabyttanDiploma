@@ -45,4 +45,5 @@
     <string name="change_password">Change password</string>
     <string name="e_mail">E - mail</string>
     <string name="account">Account</string>
+    <string name="saved_events">Saved Events</string>
 </resources>

@@ -95,7 +95,16 @@ class SettingsFragment : Fragment() {
         binding.languageTextView.setOnClickListener {
             showLanguageMenu(it)
         }
+
+        binding.savedEventsTextView.setOnClickListener {
+            val bundle = Bundle().apply {
+                putBoolean("isSavedEvents", true)
+            }
+            findNavController().navigate(R.id.action_settingsFragment_to_eventsFragment, bundle)
+        }
+
     }
+
 
     private fun resetPassword(email: String) {
         auth.sendPasswordResetEmail(email)
@@ -146,14 +155,27 @@ class SettingsFragment : Fragment() {
 
     private fun handleLanguageChange(language: String) {
         savedLanguage = language
-//        binding.apply {
-//            languageTextView.text = if (language == "ru") "Русский" else "English"
-//            usernameLabelTextView.text =
-//                requireContext().getStringInLocale(R.string.username, language)
-//            emailLabelTextView.text = requireContext().getStringInLocale(R.string.email, language)
-//            languageLabelTextView.text =
-//                requireContext().getStringInLocale(R.string.language, language)
-//        }
+        binding.apply {
+            settingsTitleTextView.text =
+                requireContext().getStringInLocale(R.string.settings, language)
+            accountTitleView.text =
+                requireContext().getStringInLocale(R.string.account, language)
+
+            changePasswordTextView.text =
+                requireContext().getStringInLocale(R.string.change_password, language)
+            moreTitleTextView.text =
+                requireContext().getStringInLocale(R.string.more, language)
+            savedEventsTextView.text =
+                requireContext().getStringInLocale(R.string.saved_events, language)
+            languageTextView.text =
+                requireContext().getStringInLocale(R.string.change_language, language)
+            notificationsTextView.text =
+                requireContext().getStringInLocale(R.string.notifications, language)
+            logoutTextView.text =
+                requireContext().getStringInLocale(R.string.log_out, language)
+
+
+        }
     }
 
     private fun setupLanguageSelector() {

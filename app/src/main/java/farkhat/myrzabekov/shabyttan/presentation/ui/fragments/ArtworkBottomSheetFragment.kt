@@ -68,6 +68,16 @@ class ArtworkBottomSheetFragment : BottomSheetDialogFragment() {
                                     artDescription.text = event.description
 //                                    artFunFact.text = didYouKnowToShow.orEmpty()
                                 }
+
+                                likeActionButton.setOnClickListener {
+                                    if (!viewModel.isUserAuth()) {
+                                        findNavController().navigate(R.id.action_homeFragment_to_signUpFragment)
+                                    } else {
+                                        if (event != null) {
+                                            viewModel.addToSavedEvents(documentSnapshot.id)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

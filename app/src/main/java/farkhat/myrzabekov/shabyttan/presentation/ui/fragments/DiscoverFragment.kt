@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -13,6 +15,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import farkhat.myrzabekov.shabyttan.R
 import farkhat.myrzabekov.shabyttan.databinding.FragmentDiscoverBinding
 import farkhat.myrzabekov.shabyttan.presentation.ui.adapter.DiscoverPagerAdapter
+import farkhat.myrzabekov.shabyttan.presentation.ui.getStringInLocale
+import farkhat.myrzabekov.shabyttan.presentation.viewmodel.MainViewModel
 
 
 @AndroidEntryPoint
@@ -23,6 +27,9 @@ class DiscoverFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
+    private var savedLanguage: String = ""
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,11 +57,34 @@ class DiscoverFragment : Fragment() {
         binding.searchButton.setOnClickListener {
             findNavController().navigate(R.id.action_discoverFragment_to_searchFragment)
         }
+        viewModel.getUserLanguage()
+        viewModel.languageStateFlow.asLiveData().observe(viewLifecycleOwner) { language ->
+            handleLanguageChange(language)
+            tabLayout.getTabAt(0)?.text =
+                requireContext().getStringInLocale(
+                    R.string.for_you,
+                    savedLanguage
+                )
+            tabLayout.getTabAt(1)?.text =
+                requireContext().getStringInLocale(
+                    R.string.events,
+                    savedLanguage
+                )
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun handleLanguageChange(language: String) {
+        savedLanguage = language
+        binding.apply {
+            discoverTextView.text =
+                requireContext().getStringInLocale(R.string.discover, language)
+
+        }
     }
 
 }

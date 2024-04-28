@@ -45,7 +45,7 @@ class SearchResultsFragment : Fragment(), OnArtworkClickListener {
         val receivedArguments = arguments
         if (receivedArguments != null) {
             val keyword = receivedArguments.getString("keyword").toString()
-            viewModel.searchArtworks(keyword)
+            viewModel.searchArtworksFirebase(keyword)
         }
     }
 
